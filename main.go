@@ -1,25 +1,28 @@
 package main
 
 import (
+	"embed"
 	"flag"
 	"fmt"
-	"github.com/gin-gonic/gin"
+	"html/template"
+	"log"
+	"net/http"
 )
 
 var (
+	//go:embed web
+	fs embed.FS
+
 	port = flag.Int("port", 9420, "Listen port")
 )
 
+func index(w http.ResponseWriter, req *http.Request) {
+	t, _ := template.ParseFS(fs, "web/template/index.tmpl")
+	t.Execute(w, nil)
+}
+
 func main() {
 	flag.Parse()
-
-	server := gin.Default()
-
-	server.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "Hello World!",
-		})
-	})
-
-	server.Run(fmt.Sprintf("[::]:%d", *port))
+	http.HandleFunc("/", index)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf("[::]:%d", *port), nil))
 }
