@@ -1,0 +1,14 @@
+{{template "base" .}}
+
+{{define "main"}}
+
+{{range .Folders}}
+<a href="{{ . }}">{{ . }}</a>
+{{end}}
+
+{{range .Files}}
+<img src="/{{ . }}" loading="lazy"/>
+{{end}}
+
+
+{{end}}

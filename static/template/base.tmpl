@@ -3,14 +3,29 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link href="/_/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/_/css/image-server.css" rel="stylesheet">
 
-    <title>ImageServer{{template "title" .}}</title>
+    <title>ImageServer</title>
 </head>
 <body>
 
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        {{range .Path}}
+        <li class="breadcrumb-item"><a href="{{ .Link }}">{{ .Show }}</a></li>
+        {{end}}
+    </ol>
+</nav>
+
 {{template "main" .}}
+
+<footer class="footer mt-auto py-3">
+    <div class="container text-center">
+        <span class="text-muted">Made with ❤️ <a href="https://haoyu.love/" target="_blank">Yu Hao</a></span>
+    </div>
+</footer>
 
 <script src="/_/js/jquery.slim.min.js"></script>
 <script src="/_/js/bootstrap.bundle.min.js"></script>

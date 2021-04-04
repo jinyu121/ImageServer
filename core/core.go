@@ -3,6 +3,8 @@ package core
 import (
 	"bufio"
 	"os"
+	"path"
+	"path/filepath"
 	"sort"
 	"strings"
 )
@@ -33,10 +35,15 @@ func GetFolderContent(root string) (folders []string, files []string, err error)
 
 	// Split result into folders and files
 	for _, item := range fileInfo {
+		// Filter out hidden files
+		if strings.HasPrefix(filepath.Base(item.Name()), ".") {
+			continue
+		}
+
 		if item.IsDir() {
-			folders = append(folders, item.Name())
+			folders = append(folders, path.Join(root, item.Name()))
 		} else {
-			files = append(files, item.Name())
+			files = append(files, path.Join(root, item.Name()))
 		}
 	}
 
@@ -76,4 +83,37 @@ func GetTextContent(root string) (lines []string, err error) {
 	}
 
 	return
+}
+
+func isImageFile(file string) bool {
+	switch strings.ToLower(filepath.Ext(file)) {
+	case ".jpg", ".jpeg", ".png", ".bmp", ".gif":
+		return true
+	}
+	return false
+}
+func isVideoFile(file string) bool {
+	switch strings.ToLower(filepath.Ext(file)) {
+	case ".mp4", ".avi":
+		return true
+	}
+	return false
+}
+
+func FilterImageFiles(files []string) []string {
+	n := 0
+	for _, val := range files {
+		if isImageFile(val) || isVideoFile(val) {
+			files[n] = val
+			n++
+		}
+	}
+	return files[:n]
+}
+
+func RemoveLeft(data []string, str string) []string {
+	for i := range data {
+		data[i] = strings.TrimLeft(data[i], str)
+	}
+	return data
 }
