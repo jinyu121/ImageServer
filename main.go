@@ -11,15 +11,15 @@ import (
 )
 
 var (
-	//go:embed web/image web/static
+	//go:embed static/image static/css static/js
 	staticFiles embed.FS
-	//go:embed web/template
+	//go:embed static/template
 	templateFiles embed.FS
 	port          = flag.Int("port", 9420, "Listen port")
 )
 
 func index(w http.ResponseWriter, req *http.Request) {
-	t, _ := template.ParseFS(templateFiles, "web/template/index.tmpl", "web/template/base.tmpl")
+	t, _ := template.ParseFS(templateFiles, "static/template/index.tmpl", "static/template/base.tmpl")
 	t.Execute(w, nil)
 }
 
@@ -28,7 +28,7 @@ func main() {
 
 	http.HandleFunc("/", index)
 
-	staticFilesClean, _ := fs.Sub(staticFiles, "web")
+	staticFilesClean, _ := fs.Sub(staticFiles, "static")
 	http.HandleFunc("/_/", http.StripPrefix("/_/", http.FileServer(http.FS(staticFilesClean))).ServeHTTP)
 
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("[::]:%d", *port), nil))
