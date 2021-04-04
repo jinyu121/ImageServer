@@ -17,7 +17,7 @@ var (
 )
 
 func index(w http.ResponseWriter, req *http.Request) {
-	t, _ := template.ParseFS(fs, "web/template/index.tmpl")
+	t, _ := template.ParseFS(fs, "web/template/index.tmpl", "web/template/base.tmpl")
 	t.Execute(w, nil)
 }
 
