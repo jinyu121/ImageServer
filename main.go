@@ -1,10 +1,18 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
+var (
+	port = flag.Int("port", 9420, "Listen port")
+)
+
 func main() {
+	flag.Parse()
+
 	r := gin.Default()
 
 	r.GET("/", func(c *gin.Context) {
@@ -13,5 +21,5 @@ func main() {
 		})
 	})
 
-	r.Run()
+	r.Run(fmt.Sprintf("[::]:%d", *port))
 }
