@@ -13,13 +13,13 @@ var (
 func main() {
 	flag.Parse()
 
-	r := gin.Default()
+	server := gin.Default()
 
-	r.GET("/", func(c *gin.Context) {
+	server.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "Hello World!",
 		})
 	})
 
-	r.Run(fmt.Sprintf("[::]:%d", *port))
+	server.Run(fmt.Sprintf("[::]:%d", *port))
 }
