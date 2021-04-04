@@ -1,14 +1,19 @@
 {{define "base"}}
 <!doctype html>
-<html lang='en'>
+<html lang="en">
 <head>
-    <meta charset='utf-8'>
-    <title>ImageServer</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="/_/css/bootstrap.min.css" rel="stylesheet">
+
+    <title>ImageServer{{template "title" .}}</title>
 </head>
 <body>
-<main>
-    {{template "main" .}}
-</main>
+
+{{template "main" .}}
+
+<script src="/_/js/jquery.slim.min.js"></script>
+<script src="/_/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
 {{end}}
