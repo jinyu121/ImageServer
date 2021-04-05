@@ -5,8 +5,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link href="/_/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/_/css/lightbox.min.css" rel="stylesheet">
     <link href="/_/css/image-server.css" rel="stylesheet">
-    <link rel="icon" href="/_/image/logo.jpg" type="image/jpeg">
+    <link rel="icon" href="/_/images/logo.jpg" type="image/jpeg">
     <title>ImageServer</title>
 </head>
 <body>
@@ -30,8 +31,18 @@
     </div>
 </footer>
 
-<script src="/_/js/jquery.slim.min.js"></script>
+<script src="/_/js/jquery.min.js"></script>
 <script src="/_/js/bootstrap.bundle.min.js"></script>
+<script src="/_/js/lightbox.min.js"></script>
+<script>
+    lightbox.option({
+        'resizeDuration': 0,
+        'wrapAround': true,
+        'fadeDuration': 0,
+        'imageFadeDuration': 0,
+        'positionFromTop': 0
+    })
+</script>
 </body>
 </html>
 {{end}}

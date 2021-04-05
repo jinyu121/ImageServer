@@ -26,7 +26,9 @@
 {{ if .Images }}
 <div class="row pb-3">
     {{range .Images}}
-    <img src="/{{ . }}" class="img-thumbnail col-md-6" loading="lazy"/>
+    <a href="/{{ . }}" data-title="{{ pathToName . }}" title="{{ pathToName . }}" data-lightbox="ImageServer">
+        <img src="/{{ . }}" class="img-thumbnail col-md-6" loading="lazy"/>
+    </a>
     {{end}}
 </div>
 {{end}}
