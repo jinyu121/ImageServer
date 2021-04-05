@@ -113,7 +113,7 @@ func FilterFiles(files []string, fn func(string) bool) []string {
 
 func RemoveLeft(data []string, str string) []string {
 	for i := range data {
-		data[i] = strings.TrimLeft(data[i], str)
+		data[i] = strings.TrimPrefix(data[i], str)
 	}
 	return data
 }

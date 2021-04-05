@@ -7,6 +7,14 @@ import (
 	"strings"
 )
 
+type PageData struct {
+	Path    string
+	Folders []string
+	Images  []string
+	Videos  []string
+	Files   []string
+}
+
 func GetTemplate(storage embed.FS, fileList ...string) *template.Template {
 	var tpl *template.Template
 	fileList = append(fileList, "static/template/base.tmpl")

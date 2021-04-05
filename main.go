@@ -34,7 +34,7 @@ var (
 )
 
 func processDirectory(w http.ResponseWriter, req *http.Request) {
-	realPath := path.Join(*root, strings.Trim(req.URL.Path, "/"))
+	realPath := path.Join(*root, strings.TrimRight(req.URL.Path, "/"))
 
 	rootInfo, err := os.Stat(realPath)
 	if nil != err {
