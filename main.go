@@ -4,7 +4,7 @@ import (
 	"embed"
 	"flag"
 	"fmt"
-	"github.com/jinyu121/ImageServer/core"
+	"github.com/jinyu121/ImageServer/app"
 	"html/template"
 	"io/fs"
 	"log"
@@ -37,7 +37,7 @@ var (
 func parseTemplate(fileList ...string) *template.Template {
 	var tpl *template.Template
 	fileList = append(fileList, "static/template/base.tmpl")
-	tpl, _ = template.New(path.Base(fileList[0])).Funcs(core.TemplateFunction).ParseFS(TemplateFiles, fileList...)
+	tpl, _ = template.New(path.Base(fileList[0])).Funcs(app.TemplateFunction).ParseFS(TemplateFiles, fileList...)
 	return tpl
 }
 
@@ -51,14 +51,14 @@ func processDirectory(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if rootInfo.Mode().IsDir() {
-		folders, files, _ := core.GetFolderContent(realPath)
-		images := core.FilterFiles(files, core.IsImageFile)
-		videos := core.FilterFiles(files, core.IsVideoFile)
-		pageData := core.PageData{
+		folders, files, _ := app.GetFolderContent(realPath)
+		images := app.FilterFiles(files, app.IsImageFile)
+		videos := app.FilterFiles(files, app.IsVideoFile)
+		pageData := app.PageData{
 			Path:    req.URL.Path,
-			Folders: core.RemoveLeft(folders, *root),
-			Images:  core.RemoveLeft(images, *root),
-			Videos:  core.RemoveLeft(videos, *root),
+			Folders: app.RemoveLeft(folders, *root),
+			Images:  app.RemoveLeft(images, *root),
+			Videos:  app.RemoveLeft(videos, *root),
 		}
 		TemplateList.Execute(w, pageData)
 	} else {
@@ -67,12 +67,12 @@ func processDirectory(w http.ResponseWriter, req *http.Request) {
 }
 
 func processFile(w http.ResponseWriter, req *http.Request) {
-	pageData := core.PageData{Path: "/", Files: fileLines}
+	pageData := app.PageData{Path: "/", Files: fileLines}
 	TemplateList.Execute(w, pageData)
 }
 
 func process404(w http.ResponseWriter, req *http.Request) {
-	pageData := core.PageData{Path: req.URL.Path}
+	pageData := app.PageData{Path: req.URL.Path}
 	Template404.Execute(w, pageData)
 }
 
@@ -90,7 +90,7 @@ func main() {
 		fileServer = http.FileServer(http.Dir(*root)).ServeHTTP
 		http.HandleFunc("/", processDirectory)
 	} else {
-		fileLines, _ = core.GetTextContent(*root)
+		fileLines, _ = app.GetTextContent(*root)
 		http.HandleFunc("/", processFile)
 	}
 

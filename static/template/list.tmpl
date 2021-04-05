@@ -3,36 +3,45 @@
 {{define "main"}}
 
 {{ if .Folders }}
-<table class="table table-sm table-striped">
-    <thead>
-    <tr>
-        <th scope="col">#</th>
-        <th scope="col">Folder</th>
-    </tr>
-    </thead>
-    <tbody>
-    {{range $index, $element := .Folders}}
-    <tr>
-        <th scope="row">{{ $index }}</th>
-        <td><a href="{{ $element }}">{{ pathToName $element }}</a></td>
-    </tr>
-    {{end}}
-    </tbody>
-</table>
+<div class="row pb-3">
+    <table class="table table-sm table-striped table-hover">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Folder</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{range $index, $element := .Folders}}
+        <tr>
+            <th scope="row">{{ $index }}</th>
+            <td><a href="{{ $element }}">{{ pathToName $element }}</a></td>
+        </tr>
+        {{end}}
+        </tbody>
+    </table>
+</div>
 {{end}}
 
 {{ if .Images }}
-{{range .Images}}
-<img src="/{{ . }}" class="img-thumbnail" loading="lazy"/>
-{{end}}
+<div class="row pb-3">
+    {{range .Images}}
+    <img src="/{{ . }}" class="img-thumbnail col-md-6" loading="lazy"/>
+    {{end}}
+</div>
 {{end}}
 
 {{ if .Videos }}
-{{range .Videos}}
-<video controls buffered name="media" preload="metadata" class="embed-responsive-item">
-    <source src="/{{ . }}">
-</video>
-{{end}}
+<div class="row">
+    {{range .Videos}}
+    <figure class="figure img-thumbnail col-md-6">
+        <video controls buffered name="media" preload="metadata" class="embed-responsive">
+            <source src="/{{ . }}">
+        </video>
+        <figcaption class="figure-caption text-center">{{ pathToName . }}</figcaption>
+    </figure>
+    {{end}}
+</div>
 {{end}}
 
 {{end}}
