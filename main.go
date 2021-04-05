@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"github.com/jinyu121/ImageServer/app"
-	"html/template"
 	"io/fs"
 	"log"
 	"net/http"
@@ -30,16 +29,9 @@ var (
 )
 
 var (
-	TemplateList = parseTemplate("static/template/list.tmpl")
-	Template404  = parseTemplate("static/template/404.tmpl")
+	TemplateList = app.GetTemplate(TemplateFiles, "static/template/list.tmpl")
+	Template404  = app.GetTemplate(TemplateFiles, "static/template/404.tmpl")
 )
-
-func parseTemplate(fileList ...string) *template.Template {
-	var tpl *template.Template
-	fileList = append(fileList, "static/template/base.tmpl")
-	tpl, _ = template.New(path.Base(fileList[0])).Funcs(app.TemplateFunction).ParseFS(TemplateFiles, fileList...)
-	return tpl
-}
 
 func processDirectory(w http.ResponseWriter, req *http.Request) {
 	realPath := path.Join(*root, strings.Trim(req.URL.Path, "/"))
@@ -97,5 +89,6 @@ func main() {
 	staticFilesClean, _ := fs.Sub(StaticFiles, "static")
 	http.HandleFunc("/_/", http.StripPrefix("/_/", http.FileServer(http.FS(staticFilesClean))).ServeHTTP)
 
+	fmt.Println("Server is ready to handle requests at port", *port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("[::]:%d", *port), nil))
 }
