@@ -34,9 +34,10 @@ var (
 	Template404  = parseTemplate("static/template/404.tmpl")
 )
 
-func parseTemplate(name ...string) *template.Template {
-	name = append(name, "static/template/base.tmpl")
-	tpl, _ := template.ParseFS(TemplateFiles, name...)
+func parseTemplate(fileList ...string) *template.Template {
+	var tpl *template.Template
+	fileList = append(fileList, "static/template/base.tmpl")
+	tpl, _ = template.New(path.Base(fileList[0])).Funcs(core.TemplateFunction).ParseFS(TemplateFiles, fileList...)
 	return tpl
 }
 
