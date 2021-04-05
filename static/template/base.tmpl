@@ -13,17 +13,18 @@
 
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-        {{range .Path}}
-        <li class="breadcrumb-item"><a href="{{ .Link }}">{{ .Show }}</a></li>
-        {{end}}
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item"><a href="/{{ .Path }}">{{ .Path }}</a></li>
     </ol>
 </nav>
 
-{{template "main" .}}
+<div class="container-fluid">
+    {{template "main" .}}
+</div>
 
 <footer class="footer mt-auto py-3">
-    <div class="container text-center">
-        <span class="text-muted">Made with ❤️ <a href="https://haoyu.love/" target="_blank">Yu Hao</a></span>
+    <div class="container-fluid text-right">
+        <span class="text-muted">Made by <a href="https://haoyu.love/" target="_blank">Yu Hao</a> with ❤️</span>
     </div>
 </footer>
 

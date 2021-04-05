@@ -2,13 +2,29 @@
 
 {{define "main"}}
 
-{{range .Folders}}
-<a href="{{ . }}">{{ . }}</a>
+{{ if .Folders }}
+<table class="table table-sm table-striped">
+    <thead>
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">Folder</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{range $index, $element := .Folders}}
+    <tr>
+        <th scope="row">{{ $index }}</th>
+        <td><a href="{{ $element }}">{{ $element }}</a></td>
+    </tr>
+    {{end}}
+    </tbody>
+</table>
 {{end}}
 
+{{ if .Files }}
 {{range .Files}}
-<img src="/{{ . }}" loading="lazy"/>
+<img src="/{{ . }}" class="img-thumbnail" loading="lazy"/>
 {{end}}
-
+{{end}}
 
 {{end}}

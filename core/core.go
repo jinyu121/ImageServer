@@ -92,6 +92,7 @@ func isImageFile(file string) bool {
 	}
 	return false
 }
+
 func isVideoFile(file string) bool {
 	switch strings.ToLower(filepath.Ext(file)) {
 	case ".mp4", ".avi":

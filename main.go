@@ -29,6 +29,17 @@ var (
 	fileServer func(w http.ResponseWriter, req *http.Request) = nil
 )
 
+var (
+	TemplateList = parseTemplate("static/template/list.tmpl")
+	Template404  = parseTemplate("static/template/404.tmpl")
+)
+
+func parseTemplate(name ...string) *template.Template {
+	name = append(name, "static/template/base.tmpl")
+	tpl, _ := template.ParseFS(TemplateFiles, name...)
+	return tpl
+}
+
 func processDirectory(w http.ResponseWriter, req *http.Request) {
 	realPath := path.Join(*root, strings.Trim(req.URL.Path, "/"))
 
@@ -41,11 +52,8 @@ func processDirectory(w http.ResponseWriter, req *http.Request) {
 	if rootInfo.Mode().IsDir() {
 		folders, files, _ := core.GetFolderContent(realPath)
 		files = core.FilterImageFiles(files)
-
 		pageData := core.NewPageData(core.RemoveLeft(folders, *root), core.RemoveLeft(files, *root), req.URL.Path)
-
-		t, _ := template.ParseFS(TemplateFiles, "static/template/list.tmpl", "static/template/base.tmpl")
-		t.Execute(w, pageData)
+		TemplateList.Execute(w, pageData)
 	} else {
 		fileServer(w, req)
 	}
@@ -53,15 +61,12 @@ func processDirectory(w http.ResponseWriter, req *http.Request) {
 
 func processFile(w http.ResponseWriter, req *http.Request) {
 	pageData := core.NewPageData(make([]string, 0), fileLines, "/")
-
-	t, _ := template.ParseFS(TemplateFiles, "static/template/list.tmpl", "static/template/base.tmpl")
-	t.Execute(w, pageData)
+	TemplateList.Execute(w, pageData)
 }
 
 func process404(w http.ResponseWriter, req *http.Request) {
 	pageData := core.NewPageData(make([]string, 0), make([]string, 0), req.URL.Path)
-	t, _ := template.ParseFS(TemplateFiles, "static/template/404.tmpl", "static/template/base.tmpl")
-	t.Execute(w, pageData)
+	Template404.Execute(w, pageData)
 }
 
 func main() {

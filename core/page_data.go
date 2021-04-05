@@ -2,24 +2,20 @@ package core
 
 import "strings"
 
-type Breadcrumb struct {
-	Show string
-	Link string
-}
 type PageData struct {
+	Path    string
 	Folders []string
 	Files   []string
-	Path    []Breadcrumb
 }
 
-func NewPageData(folders, files []string, path string) *PageData {
-	crumbs := []Breadcrumb{Breadcrumb{Show: "Home", Link: "/"}}
-	path = strings.Trim(path, "/")
-	if "" != path {
-		sps := strings.Split(path, "/")
-		for i, item := range sps {
-			crumbs = append(crumbs, Breadcrumb{item, "/" + strings.Join(sps[:i+1], "/")})
+func NewPageData(folders []string, files []string, root string) *PageData {
+	crumbs := make([]string, 0)
+	root = strings.Trim(root, "/")
+	if "" != root {
+		sps := strings.Split(root, "/")
+		for i := range sps {
+			crumbs = append(crumbs, "/"+strings.Join(sps[:i+1], "/"))
 		}
 	}
-	return &PageData{Folders: folders, Files: files, Path: crumbs}
+	return &PageData{Path: root, Folders: folders, Files: files}
 }
