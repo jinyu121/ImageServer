@@ -14,7 +14,9 @@
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="/">Home</a></li>
-        <li class="breadcrumb-item"><a href="/{{ .Path }}">{{ .Path }}</a></li>
+        {{range breadCrumb .Path }}
+        <li class="breadcrumb-item"><a href="{{ . }}">{{ pathToName . }}</a></li>
+        {{end}}
     </ol>
 </nav>
 

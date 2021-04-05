@@ -14,7 +14,7 @@
     {{range $index, $element := .Folders}}
     <tr>
         <th scope="row">{{ $index }}</th>
-        <td><a href="{{ $element }}">{{ $element }}</a></td>
+        <td><a href="{{ $element }}">{{ pathToName $element }}</a></td>
     </tr>
     {{end}}
     </tbody>

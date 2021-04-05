@@ -17,7 +17,7 @@ var TemplateFunction = template.FuncMap{
 		return arr[len(arr)-1]
 	},
 	"breadCrumb": func(root string) []string {
-		crumb := []string{"Home"}
+		crumb := make([]string, 0)
 		root = strings.Trim(root, "/")
 		if "" != root {
 			sps := strings.Split(root, "/")
