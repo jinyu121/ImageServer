@@ -52,8 +52,14 @@ func processDirectory(w http.ResponseWriter, req *http.Request) {
 
 	if rootInfo.Mode().IsDir() {
 		folders, files, _ := core.GetFolderContent(realPath)
-		files = core.FilterImageFiles(files)
-		pageData := core.NewPageData(core.RemoveLeft(folders, *root), core.RemoveLeft(files, *root), req.URL.Path)
+		images := core.FilterFiles(files, core.IsImageFile)
+		videos := core.FilterFiles(files, core.IsVideoFile)
+		pageData := core.PageData{
+			Path:    req.URL.Path,
+			Folders: core.RemoveLeft(folders, *root),
+			Images:  core.RemoveLeft(images, *root),
+			Videos:  core.RemoveLeft(videos, *root),
+		}
 		TemplateList.Execute(w, pageData)
 	} else {
 		fileServer(w, req)
@@ -61,12 +67,12 @@ func processDirectory(w http.ResponseWriter, req *http.Request) {
 }
 
 func processFile(w http.ResponseWriter, req *http.Request) {
-	pageData := core.NewPageData(make([]string, 0), fileLines, "/")
+	pageData := core.PageData{Path: "/", Files: fileLines}
 	TemplateList.Execute(w, pageData)
 }
 
 func process404(w http.ResponseWriter, req *http.Request) {
-	pageData := core.NewPageData(make([]string, 0), make([]string, 0), req.URL.Path)
+	pageData := core.PageData{Path: req.URL.Path}
 	Template404.Execute(w, pageData)
 }
 

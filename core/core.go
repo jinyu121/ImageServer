@@ -85,7 +85,7 @@ func GetTextContent(root string) (lines []string, err error) {
 	return
 }
 
-func isImageFile(file string) bool {
+func IsImageFile(file string) bool {
 	switch strings.ToLower(filepath.Ext(file)) {
 	case ".jpg", ".jpeg", ".png", ".bmp", ".gif":
 		return true
@@ -93,7 +93,7 @@ func isImageFile(file string) bool {
 	return false
 }
 
-func isVideoFile(file string) bool {
+func IsVideoFile(file string) bool {
 	switch strings.ToLower(filepath.Ext(file)) {
 	case ".mp4", ".avi":
 		return true
@@ -101,15 +101,14 @@ func isVideoFile(file string) bool {
 	return false
 }
 
-func FilterImageFiles(files []string) []string {
-	n := 0
+func FilterFiles(files []string, fn func(string) bool) []string {
+	result := make([]string, 0)
 	for _, val := range files {
-		if isImageFile(val) || isVideoFile(val) {
-			files[n] = val
-			n++
+		if fn(val) {
+			result = append(result, val)
 		}
 	}
-	return files[:n]
+	return result
 }
 
 func RemoveLeft(data []string, str string) []string {

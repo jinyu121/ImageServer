@@ -21,9 +21,17 @@
 </table>
 {{end}}
 
-{{ if .Files }}
-{{range .Files}}
+{{ if .Images }}
+{{range .Images}}
 <img src="/{{ . }}" class="img-thumbnail" loading="lazy"/>
+{{end}}
+{{end}}
+
+{{ if .Videos }}
+{{range .Videos}}
+<video controls buffered name="media" preload="metadata" class="embed-responsive-item">
+    <source src="/{{ . }}">
+</video>
 {{end}}
 {{end}}
 
