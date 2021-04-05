@@ -1,5 +1,104 @@
-{{template "base" .}}
+{{template "header"}}
+{{template "breadcrumb" index .Pages 0}}
+<div class="container-fluid">
 
-{{define "main"}}
-<h1>Compare</h1>
+    {{ $folders := .Folders }}
+    {{ if $folders }}
+    <div class="row mb-3 table-responsive">
+        <table class="table table-striped table-hover">
+            {{template "table_head" .}}
+            <tbody>
+            {{range $row:=$folders}}
+            <tr>
+                {{$filename:=index $row 0}}
+                <th scope="row">{{ $filename }}</th>
+                {{range $col:=slice $row 1}}
+                {{if $col}}
+                <td scope="row"><a href="{{ $col }}">{{ pathToName $col }}</a></td>
+                {{else}}
+                <td scope="row">&nbsp;</td>
+                {{end}}
+                {{end}}
+            </tr>
+            {{end}}
+            </tbody>
+        </table>
+    </div>
+    {{end}}
+
+
+    {{ $images := .Images }}
+    {{ if $images }}
+    <div class="row mb-3 table-responsive">
+        <table class="table table-striped table-hover">
+            {{template "table_head" .}}
+            <tbody>
+            {{range $row:=$images}}
+            <tr>
+                {{$filename:=index $row 0}}
+                <th scope="row">{{ $filename }}</th>
+                {{range $col:=slice $row 1}}
+                {{if $col}}
+                <td scope="row">
+                    <a href="{{ $col }}" data-title="{{ $filename }}" title="{{ $filename }}"
+                       data-lightbox="ImageServer" class="" target="_blank">
+                        <img src="{{ $col }}" loading="lazy"/>
+                    </a>
+                </td>
+                {{else}}
+                <td scope="row">&nbsp;</td>
+                {{end}}
+                {{end}}
+            </tr>
+            {{end}}
+            </tbody>
+        </table>
+    </div>
+    {{end}}
+
+    {{ $videos := .Videos }}
+    {{ if $videos }}
+    <div class="row mb-3 table-responsive">
+        <table class="table table-striped table-hover">
+            {{template "table_head" .}}
+            <tbody>
+            {{range $row:=$videos}}
+            <tr>
+                {{$filename:=index $row 0}}
+                <th scope="row">{{ $filename }}</th>
+                {{range $col:=slice $row 1}}
+                {{if $col}}
+                <td scope="row">
+                    <figure class="figure col-md-6 d-inline mb-0">
+                        <video controls buffered name="media" preload="metadata" class="embed-responsive">
+                            <source src="{{ $col }}">
+                        </video>
+                        <figcaption class="figure-caption text-center">
+                            <a href="{{ $col }}" target="_blank">{{ pathToName $col }}</a>
+                        </figcaption>
+                    </figure>
+                </td>
+                {{else}}
+                <td scope="row">&nbsp;</td>
+                {{end}}
+                {{end}}
+            </tr>
+            {{end}}
+            </tbody>
+        </table>
+    </div>
+    {{end}}
+
+</div>
+{{template "footer"}}
+
+{{define "table_head"}}
+<thead>
+<tr>
+    <th>Name</th>
+    {{range $.Pages}}
+    <th><a href="{{.Path}}">{{.Path}}</a></th>
+    {{end}}
+</tr>
+</thead>
 {{end}}

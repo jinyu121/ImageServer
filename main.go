@@ -29,30 +29,29 @@ var (
 )
 
 var (
-	TemplateList = app.GetTemplate(TemplateFiles, "static/template/list.tmpl")
-	Template404  = app.GetTemplate(TemplateFiles, "static/template/404.tmpl")
+	TemplateList    = app.GetTemplate(TemplateFiles, "static/template/list.tmpl")
+	TemplateCompare = app.GetTemplate(TemplateFiles, "static/template/compare.tmpl")
+	Template404     = app.GetTemplate(TemplateFiles, "static/template/404.tmpl")
 )
 
 func processDirectory(w http.ResponseWriter, req *http.Request) {
-	realPath := path.Join(*root, strings.TrimRight(req.URL.Path, "/"))
-
-	rootInfo, err := os.Stat(realPath)
+	rootInfo, err := os.Stat(path.Join(*root, strings.TrimRight(req.URL.Path, "/")))
 	if nil != err {
 		process404(w, req)
 		return
 	}
 
 	if rootInfo.Mode().IsDir() {
-		folders, files, _ := app.GetFolderContent(realPath)
-		images := app.FilterFiles(files, app.IsImageFile)
-		videos := app.FilterFiles(files, app.IsVideoFile)
-		pageData := app.PageData{
-			Path:    req.URL.Path,
-			Folders: app.RemoveLeft(folders, *root),
-			Images:  app.RemoveLeft(images, *root),
-			Videos:  app.RemoveLeft(videos, *root),
+		comparePaths, ok := req.URL.Query()["c"]
+		if ok {
+			paths := []string{req.URL.Path}
+			paths = append(paths, comparePaths...)
+			multiPageData := app.MakeMultiPageData(paths, *root)
+			TemplateCompare.Execute(w, multiPageData)
+		} else {
+			pageData := app.MakePageData(req.URL.Path, *root)
+			TemplateList.Execute(w, pageData)
 		}
-		TemplateList.Execute(w, pageData)
 	} else {
 		fileServer(w, req)
 	}
