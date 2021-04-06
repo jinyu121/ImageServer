@@ -20,7 +20,14 @@
         {{range breadCrumb .Path }}
         <li class="breadcrumb-item"><a href="{{ . }}">{{ pathToName . }}</a></li>
         {{end}}
+        {{if .PreFolder}}
+        <li><a href="{{.PreFolder}}" class="badge badge-success mx-3"> < </a></li>
+        {{end}}
+        {{if .NextFolder}}
+        <li><a href="{{.NextFolder}}" class="badge badge-success mx-3"> > </a></li>
+        {{end}}
     </ol>
+
 </nav>
 {{end}}
 

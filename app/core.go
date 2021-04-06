@@ -36,7 +36,7 @@ func GetFolderContent(root string) (folders []string, files []string, err error)
 	// Split result into folders and files
 	for _, item := range fileInfo {
 		// Filter out hidden files
-		if strings.HasPrefix(filepath.Base(item.Name()), ".") {
+		if strings.HasPrefix(item.Name(), ".") {
 			continue
 		}
 
@@ -82,6 +82,54 @@ func GetTextContent(root string) (lines []string, err error) {
 		}
 	}
 
+	return
+}
+
+func GetNeighborFolder(current, root string, offset int) (pre, nxt string) {
+	if strings.TrimRight(current, "/") == strings.TrimRight(root, "/") {
+		return
+	}
+	baseFolder := path.Dir(current)
+	currentFolder := path.Base(current)
+
+	folder, err := os.Open(baseFolder)
+	if nil != err {
+		return
+	}
+	defer folder.Close()
+
+	fileInfo, err := folder.Readdir(-1)
+	if nil != err {
+		return
+	}
+
+	// Find all folders
+	folders := make([]string, 0)
+	for _, item := range fileInfo {
+		// Filter out hidden files
+		if strings.HasPrefix(item.Name(), ".") {
+			continue
+		}
+
+		if item.IsDir() {
+			folders = append(folders, item.Name())
+		}
+	}
+
+	// Sort to keep a static order
+	sort.Strings(folders)
+
+	for i, val := range folders {
+		if val == currentFolder {
+			if i-offset >= 0 {
+				pre = strings.TrimPrefix(path.Join(baseFolder, folders[i-offset]), root)
+			}
+			if i+offset < len(folders) {
+				nxt = strings.TrimPrefix(path.Join(baseFolder, folders[i+offset]), root)
+			}
+			return
+		}
+	}
 	return
 }
 
