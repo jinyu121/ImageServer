@@ -20,8 +20,9 @@ var (
 	TemplateFiles embed.FS
 
 	// Args
-	root = flag.String("root", "./", "Image folder, or image list file")
-	port = flag.Int("port", 9420, "Listen port")
+	cwd, _ = os.Getwd()
+	root   = flag.String("root", cwd, "Image folder, or image list file")
+	port   = flag.Int("port", 9420, "Listen port")
 
 	// Global variables
 	fileLines  []string
