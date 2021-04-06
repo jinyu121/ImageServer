@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 )
 
@@ -20,9 +21,8 @@ var (
 	TemplateFiles embed.FS
 
 	// Args
-	cwd, _ = os.Getwd()
-	root   = flag.String("root", cwd, "Image folder, or image list file")
-	port   = flag.Int("port", 9420, "Listen port")
+	root = flag.String("root", "./", "Image folder, or image list file")
+	port = flag.Int("port", 9420, "Listen port")
 
 	// Global variables
 	fileLines  []string
@@ -71,6 +71,7 @@ func process404(w http.ResponseWriter, req *http.Request) {
 func main() {
 	flag.Parse()
 
+	*root, _ = filepath.Abs(*root)
 	rootInfo, err := os.Stat(*root)
 	if nil != err {
 		return
