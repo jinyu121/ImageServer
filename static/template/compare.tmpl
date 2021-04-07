@@ -4,7 +4,7 @@
 
     {{ $folders := .Folders }}
     {{ if $folders }}
-    <div class="row mb-3 table-responsive">
+    <div class="mb-3 table-responsive">
         <table class="table table-striped table-hover">
             {{template "table_head" .}}
             <tbody>
@@ -29,7 +29,7 @@
 
     {{ $images := .Images }}
     {{ if $images }}
-    <div class="row mb-3 table-responsive">
+    <div class="mb-3 table-responsive">
         <table class="table table-striped table-hover">
             {{template "table_head" .}}
             <tbody>
@@ -58,7 +58,7 @@
 
     {{ $videos := .Videos }}
     {{ if $videos }}
-    <div class="row mb-3 table-responsive">
+    <div class="mb-3 table-responsive">
         <table class="table table-striped table-hover">
             {{template "table_head" .}}
             <tbody>
@@ -70,7 +70,7 @@
                 {{if $col}}
                 <td scope="row">
                     <figure class="figure col-md-6 d-inline mb-0">
-                        <video controls buffered name="media" preload="metadata" class="embed-responsive">
+                        <video controls buffered name="media" preload="none" class="embed-responsive">
                             <source src="{{ $col }}">
                         </video>
                         <figcaption class="figure-caption text-center">
