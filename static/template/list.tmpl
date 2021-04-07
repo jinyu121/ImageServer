@@ -23,10 +23,10 @@
     {{end}}
 
     {{ if .Images }}
-    <div class="row mb-3">
+    <div class="row mb-3 text-center">
         {{range .Images}}
         <a href="{{ . }}" data-title="{{ pathToName . }}" title="{{ pathToName . }}" data-lightbox="ImageServer"
-           class="img-thumbnail col-md-6" target="_blank">
+           class="img-thumbnail" target="_blank">
             <img src="{{ . }}" loading="lazy"/>
         </a>
         {{end}}
@@ -36,7 +36,7 @@
     {{ if .Videos }}
     <div class="row mb-3">
         {{range .Videos}}
-        <figure class="figure img-thumbnail col-md-6 d-inline mb-0">
+        <figure class="figure img-thumbnail d-inline mb-0">
             <video controls buffered name="media" preload="metadata" class="embed-responsive">
                 <source src="{{ . }}">
             </video>
