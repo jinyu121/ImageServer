@@ -4,7 +4,7 @@ import (
 	"embed"
 	"flag"
 	"fmt"
-	"github.com/jinyu121/ImageServer/app"
+	"haoyu.love/ImageServer/app"
 	"io/fs"
 	"log"
 	"net/http"

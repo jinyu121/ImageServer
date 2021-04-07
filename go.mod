@@ -1,3 +1,3 @@
-module github.com/jinyu121/ImageServer
+module haoyu.love/ImageServer
 
 go 1.16
