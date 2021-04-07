@@ -92,11 +92,23 @@
 <script src="/_/js/bootstrap.bundle.min.js"></script>
 <script src="/_/js/lightbox.min.js"></script>
 <script>
-    lightbox.option({
-        'resizeDuration': 0,
-        'wrapAround': true,
-        'fadeDuration': 0,
-        'imageFadeDuration': 0
+    $(document).ready(function () {
+        lightbox.option({
+            'resizeDuration': 0,
+            'wrapAround': true,
+            'fadeDuration': 0,
+            'imageFadeDuration': 0
+        })
+
+        var hour = (new Date()).getHours();
+        if (hour <= 7 || hour >= 19) {
+            $('body').addClass('bg-dark text-white-50')
+            $('a').addClass('text-white')
+            $('table').addClass('table-dark')
+            $(['nav>ol', '.img-thumbnail', 'figure', '.modal-content']).each((i, ele) => {
+                $(ele).addClass('bg-dark')
+            })
+        }
     })
 </script>
 </body>
