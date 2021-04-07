@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"haoyu.love/ImageServer/app"
+	"haoyu.love/ImageServer/version"
 	"io/fs"
 	"log"
 	"net/http"
@@ -21,8 +22,9 @@ var (
 	TemplateFiles embed.FS
 
 	// Args
-	root = flag.String("root", "./", "Image folder, or image list file")
-	port = flag.Int("port", 9420, "Listen port")
+	root         = flag.String("root", "./", "Image folder, or image list file")
+	port         = flag.Int("port", 9420, "Listen port")
+	printVersion = flag.Bool("version", false, "Print version and exit")
 
 	// Global variables
 	fileLines  []string
@@ -70,6 +72,12 @@ func process404(w http.ResponseWriter, req *http.Request) {
 
 func main() {
 	flag.Parse()
+
+	fmt.Println(version.VersionLong)
+
+	if *printVersion {
+		os.Exit(0)
+	}
 
 	*root, _ = filepath.Abs(*root)
 	rootInfo, err := os.Stat(*root)
