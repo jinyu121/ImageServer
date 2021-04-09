@@ -13,6 +13,9 @@ type PageData struct {
 }
 
 func MakePageData(urlPath, root string) *PageData {
+	if !strings.HasPrefix(urlPath, "/") {
+		urlPath = "/" + urlPath
+	}
 	realPath := strings.TrimSuffix(root, "/") + urlPath
 	folders, files, _ := GetFolderContent(realPath)
 	images := FilterFiles(files, IsImageFile)
