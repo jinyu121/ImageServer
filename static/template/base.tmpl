@@ -86,7 +86,7 @@
                     <div class="form-group">
                         <label for="fixHeader">Fix Header</label>
                         <select class="form-control" id="fixHeader">
-                            <option value="">Nope</option>
+                            <option value="norm">Nope</option>
                             <option value="fixed">Fix</option>
                         </select>
                     </div>
@@ -106,22 +106,18 @@
     $(document).ready(function () {
 
         function defaultCookie() {
-            if (undefined == Cookies.get('image_class')) {
-                Cookies.set('image_class', 'col-md-4');
-            }
-            $("#lineImages").val(Cookies.get('image_class'));
-
-            if (undefined == Cookies.get('video_class')) {
-                Cookies.set('video_class', 'col-md-4');
-            }
-            $("#lineVideos").val(Cookies.get('video_class'));
-
-            if (undefined == Cookies.get('video_preload')) {
-                Cookies.set('video_preload', 'none');
-            }
-            $("#videoPreload").val(Cookies.get('video_preload'));
-
-            $("#fixHeader").val(Cookies.get('app_fix_header', ""));
+            $([["#lineImages", 'image_class', "col-md-4"],
+                ["#lineVideos", 'video_class', "col-md-4"],
+                ["#videoPreload", 'video_preload', "none"],
+                ["#fixHeader", 'app_fix_header', "norm"]]).each(function (idx, ele) {
+                if (undefined == Cookies.get(ele[1])) {
+                    Cookies.set(ele[1], ele[2]);
+                }
+                $(ele[0]).val(Cookies.get(ele[1]));
+                $(ele[0]).change(function () {
+                    Cookies.set(ele[1], $(ele[0]).val());
+                })
+            });
         }
 
         function applyStyle() {
@@ -160,18 +156,6 @@
         darkMode();
         defaultCookie();
         applyStyle();
-        $("#lineImages").change(function () {
-            Cookies.set('image_class', $("#lineImages").val());
-        })
-        $("#lineVideos").change(function () {
-            Cookies.set('video_class', $("#lineVideos").val());
-        })
-        $("#videoPreload").change(function () {
-            Cookies.set('video_preload', $("#videoPreload").val());
-        })
-        $("#fixHeader").change(function () {
-            Cookies.set('app_fix_header', $("#fixHeader").val());
-        })
     })
 </script>
 </body>
