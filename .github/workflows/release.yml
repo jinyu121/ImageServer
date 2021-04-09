@@ -24,4 +24,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           goos: ${{ matrix.goos }}
           goarch: "amd64"
-          ldflags: "-X 'haoyu.love/ImageServer/version.Version=${{ env.APP_VERSION }}' -X 'haoyu.love/ImageServer/version.Build=${{ env.APP_COMMIT }}'"
+          ldflags: "-X 'main.Version=${{ env.APP_VERSION }}' -X 'main.Build=${{ env.APP_COMMIT }}'"

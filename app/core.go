@@ -165,3 +165,47 @@ func RemoveLeft(data []string, str string) []string {
 	}
 	return data
 }
+
+func AlignStringArrays(data [][]string) [][]string {
+	// How many arrays
+	n := len(data)
+	// Golang doesn't have dataset of set, so we have to use map
+	filesSet := make([]map[string]string, n)
+	// fileSet stores all the files
+	fileSet := make(map[string]bool)
+	// Record each array
+	for i, dataList := range data {
+		filesSet[i] = make(map[string]string)
+		for _, f := range dataList {
+			name := filepath.Base(f)
+			fileSet[name] = true
+			filesSet[i][name] = f
+		}
+	}
+	// Now we can get a non-duplicated file list
+	var i = 0
+	fileList := make([]string, len(fileSet))
+	for k := range fileSet {
+		fileList[i] = k
+		i++
+	}
+	sort.Strings(fileList)
+
+	// Make final result
+	result := make([][]string, len(fileSet))
+	for i, k := range fileList {
+		line := make([]string, n+1)
+		line[0] = k
+		for j, fileSetItem := range filesSet {
+			v, ok := fileSetItem[k]
+			if ok {
+				line[j+1] = v
+			} else {
+				line[j+1] = ""
+			}
+		}
+		result[i] = line
+	}
+
+	return result
+}
