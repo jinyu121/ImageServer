@@ -1,7 +1,6 @@
 {{template "header"}}
 {{template "breadcrumb" index .Pages 0}}
-<div class="container-fluid">
-
+<div class="container-fluid" id="main">
     {{ $folders := .Folders }}
     {{ if $folders }}
     <div class="mb-3 table-responsive">

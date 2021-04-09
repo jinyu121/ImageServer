@@ -15,7 +15,7 @@
 
 {{define "breadcrumb"}}
 <nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
+    <ol class="breadcrumb user-select-none rounded-0">
         <li class="breadcrumb-item"><a href="/" class="text-decoration-none">ImageServer</a></li>
         {{range breadCrumb .Path }}
         <li class="breadcrumb-item"><a href="{{ . }}">{{ pathToName . }}</a></li>
@@ -32,11 +32,15 @@
             <span class="badge badge-secondary mx-3 invisible"> > </span>
             {{end}}
             <span class="badge btn-primary" data-toggle="modal" data-target="#settingsModal">
-                #
+                =
             </span>
         </li>
     </ol>
 </nav>
+{{end}}
+
+
+{{define "footer"}}
 <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
@@ -79,6 +83,13 @@
                             <option value="metadata">Cover</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label for="fixHeader">Fix Header</label>
+                        <select class="form-control" id="fixHeader">
+                            <option value="">Nope</option>
+                            <option value="fixed">Fix</option>
+                        </select>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -87,10 +98,6 @@
         </div>
     </div>
 </div>
-{{end}}
-
-
-{{define "footer"}}
 <script src="/_/js/jquery.min.js"></script>
 <script src="/_/js/bootstrap.bundle.min.js"></script>
 <script src="/_/js/lightbox.min.js"></script>
@@ -113,12 +120,18 @@
                 Cookies.set('video_preload', 'none');
             }
             $("#videoPreload").val(Cookies.get('video_preload'));
+
+            $("#fixHeader").val(Cookies.get('app_fix_header', ""));
         }
 
         function applyStyle() {
             $("a.img-thumbnail").addClass(Cookies.get('image_class'));
             $("figure.img-thumbnail").addClass(Cookies.get('video_class'));
             $("video").prop("preload", Cookies.get('video_preload'));
+            if ("fixed" == Cookies.get('app_fix_header')) {
+                $("nav").addClass("fixed-top");
+                $("#main").addClass("mt-5");
+            }
         }
 
         function darkMode() {
@@ -155,6 +168,9 @@
         })
         $("#videoPreload").change(function () {
             Cookies.set('video_preload', $("#videoPreload").val());
+        })
+        $("#fixHeader").change(function () {
+            Cookies.set('app_fix_header', $("#fixHeader").val());
         })
     })
 </script>
