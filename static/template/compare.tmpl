@@ -10,7 +10,8 @@
             {{range $row:=$folders}}
             <tr>
                 {{$filename:=index $row 0}}
-                <th scope="row">{{ $filename }}</th>
+                <th scope="row"><a href="#{{ stringToMD5 $filename }}" id="{{ stringToMD5 $filename }}">{{ $filename
+                    }}</a></th>
                 {{range $col:=slice $row 1}}
                 {{if $col}}
                 <td scope="row"><a href="{{ $col }}">{{ pathToName $col }}</a></td>
@@ -35,7 +36,8 @@
             {{range $row:=$images}}
             <tr>
                 {{$filename:=index $row 0}}
-                <th scope="row">{{ $filename }}</th>
+                <th scope="row"><a href="#{{ stringToMD5 $filename }}" id="{{ stringToMD5 $filename }}">{{ $filename
+                    }}</a></th>
                 {{range $col:=slice $row 1}}
                 {{if $col}}
                 <td scope="row">
@@ -64,7 +66,8 @@
             {{range $row:=$videos}}
             <tr>
                 {{$filename:=index $row 0}}
-                <th scope="row">{{ $filename }}</th>
+                <th scope="row"><a href="#{{ stringToMD5 $filename }}" id="{{ stringToMD5 $filename }}">{{ $filename
+                    }}</a></th>
                 {{range $col:=slice $row 1}}
                 {{if $col}}
                 <td scope="row">

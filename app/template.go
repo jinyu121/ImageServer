@@ -1,7 +1,9 @@
 package app
 
 import (
+	"crypto/md5"
 	"embed"
+	"encoding/hex"
 	"html/template"
 	"path"
 	"strings"
@@ -35,5 +37,9 @@ var templateFunction = template.FuncMap{
 			}
 		}
 		return crumb
+	},
+	"stringToMD5": func(s string) string {
+		hash := md5.Sum([]byte(s))
+		return hex.EncodeToString(hash[:])
 	},
 }
