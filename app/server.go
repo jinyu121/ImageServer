@@ -81,7 +81,7 @@ func (server *Server) process(w http.ResponseWriter, req *http.Request) {
 }
 
 func (server *Server) processFile(w http.ResponseWriter, req *http.Request) {
-	pageData := PageData{Path: "/", Files: server.lines}
+	pageData := PageData{Path: "/", Images: server.lines}
 	server.templates["list"].Execute(w, pageData)
 }
 
