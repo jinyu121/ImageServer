@@ -12,10 +12,18 @@
 <body class="bg-light">
 <header>
     <div class="navbar navbar-dark bg-dark shadow-sm">
-        <div class="container">
+        <div class="container-fluid">
             <a href="#" class="navbar-brand d-flex align-items-center">
                 <strong>📸 ImageServer</strong>
             </a>
+            <ul class="nav nav-pills">
+                <li class="nav-item"><a href="{{ pageNum .navigation.path .pagination.prev }}" class="nav-link">⬆️</a>
+                </li>
+                <li class="nav-item"><a href="{{ pageNum .navigation.path .pagination.next }}" class="nav-link">⬇️</a>
+                </li>
+                <li class="nav-item"><a href="#" class="nav-link">️⬅️</a></li>
+                <li class="nav-item"><a href="#" class="nav-link">➡️</a></li>
+            </ul>
         </div>
     </div>
 </header>
@@ -23,7 +31,7 @@
 
 {{define "breadcrumb"}}
 <div class="bg-body shadow-sm">
-    <div class="container">
+    <div class="container-fluid">
         <nav class="nav nav-underline d-block" aria-label="breadcrumb">
             <ol class="breadcrumb user-select-none rounded-0">
                 <li class="breadcrumb-item"><a href="/" class="text-decoration-none">🏠 Home</a></li>
