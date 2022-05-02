@@ -114,3 +114,31 @@ func RemoveLeft(str string, data []string) []string {
 	}
 	return data
 }
+
+func IsTargetFileL(file string, target ...[]string) bool {
+	ext := strings.ToLower(filepath.Ext(file))
+	for _, t := range target {
+		for _, v := range t {
+			if ext == v {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func IsTargetFileM(file string, target ...map[string]struct{}) bool {
+	ext := strings.ToLower(filepath.Ext(file))
+	for _, t := range target {
+		if _, ok := t[ext]; ok {
+			return true
+		}
+	}
+	return false
+}
+
+func ArrayToSet(data map[string]struct{}, arr []string) {
+	for _, v := range arr {
+		data[v] = struct{}{}
+	}
+}

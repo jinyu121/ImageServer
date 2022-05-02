@@ -39,6 +39,7 @@ func processSingleFolder(c *gin.Context) {
 	path := filepath.Join(*app.Root, c.Param("path"))
 
 	folders, files, err := GetFolderContent(path)
+	files = FilterTargetFile(files)
 	pageNumStr := c.DefaultQuery("p", "1")
 	pageNum, err := strconv.Atoi(pageNumStr)
 	if err != nil {

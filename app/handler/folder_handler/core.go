@@ -1,6 +1,8 @@
 package folder_handler
 
 import (
+	"haoyu.love/ImageServer/app"
+	"haoyu.love/ImageServer/app/util"
 	"os"
 	"path"
 	"sort"
@@ -98,4 +100,14 @@ func GetNeighborFolder(current, root string, offset int) (pre, nxt string) {
 		}
 	}
 	return
+}
+
+func FilterTargetFile(files []string) (result []string) {
+	result = make([]string, 0)
+	for _, file := range files {
+		if util.IsTargetFileM(file, app.FileExtension) {
+			result = append(result, file)
+		}
+	}
+	return result
 }

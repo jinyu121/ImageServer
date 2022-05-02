@@ -26,9 +26,20 @@ func main() {
 	flag.Parse()
 	*app.Root, _ = filepath.Abs(*app.Root)
 
+	// Ensure the root exists.
 	fileInfo, err := os.Stat(*app.Root)
 	if os.IsNotExist(err) {
 		panic(fmt.Sprintf("Path %s doesn't exists", *app.Root))
+	}
+
+	// Process Extension
+	if "" != *app.ExtCustom {
+		ext := strings.Split(strings.ToLower(*app.ExtCustom), ",")
+		util.ArrayToSet(app.FileExtension, ext)
+	} else {
+		util.ArrayToSet(app.FileExtension, app.DefaultImageExt)
+		util.ArrayToSet(app.FileExtension, app.DefaultAudioExt)
+		util.ArrayToSet(app.FileExtension, app.DefaultVideoExt)
 	}
 
 	var ProcessFn func(*gin.Context)
