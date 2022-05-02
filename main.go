@@ -4,6 +4,9 @@ import (
 	"embed"
 	"fmt"
 	"haoyu.love/ImageServer/app/handler/folder_handler"
+	"haoyu.love/ImageServer/app/util"
+	"html/template"
+	"io/fs"
 	"net/http"
 	"os"
 	"strings"
@@ -13,8 +16,8 @@ import (
 )
 
 var (
-	//go:embed static/css static/images static/js
-	StaticFiles embed.FS
+	//go:embed static templates
+	assets embed.FS
 )
 
 func main() {
@@ -31,10 +34,16 @@ func main() {
 	// Router for the framework itself, such as static files
 	frameworkRouter := gin.New()
 	frameworkG := frameworkRouter.Group("/_")
-	frameworkG.StaticFS("/static", http.FS(StaticFiles))
+
+	staticFiles, _ := fs.Sub(assets, "static")
+	frameworkG.StaticFS("/static", http.FS(staticFiles))
 
 	// The general router
 	appRouter := gin.Default()
+	templateFiles := template.Must(
+		template.New("").Funcs(util.TemplateFunction).ParseFS(assets, "templates/*.html"))
+	appRouter.SetHTMLTemplate(templateFiles)
+
 	appRouter.GET("/*path", func(c *gin.Context) {
 		path := c.Param("path")
 		// Special handling for the
