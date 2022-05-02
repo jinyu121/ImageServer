@@ -49,8 +49,14 @@ func processSingleFolder(c *gin.Context) {
 	folders = util.RemoveLeft(*app.Root, folders)
 	files = util.RemoveLeft(*app.Root, files)
 
+	navigation := gin.H{
+		"path": c.Param("path"),
+		"prev": "",
+		"next": "",
+	}
+
 	pagination := gin.H{
-		"no":   pageNum,
+		"num":  pageNum,
 		"max":  pageNumMax,
 		"prev": pagePrev,
 		"next": pageNext,
@@ -60,5 +66,6 @@ func processSingleFolder(c *gin.Context) {
 		"folders":    folders,
 		"files":      files,
 		"pagination": pagination,
+		"navigation": navigation,
 	})
 }
