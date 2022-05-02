@@ -4,160 +4,28 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" href="/_/images/logo.jpg" type="image/jpeg">
     <link href="/_/css/bootstrap.min.css" rel="stylesheet">
     <link href="/_/css/lightbox.min.css" rel="stylesheet">
-    <link href="/_/css/image-server.css" rel="stylesheet">
-    <link rel="icon" href="/_/images/logo.jpg" type="image/jpeg">
     <title>ImageServer</title>
 </head>
 <body>
-{{end}}
-
-{{define "breadcrumb"}}
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb user-select-none rounded-0">
-        <li class="breadcrumb-item"><a href="/" class="text-decoration-none">ImageServer</a></li>
-        {{range breadCrumb .Path }}
-        <li class="breadcrumb-item"><a href="{{ . }}">{{ pathToName . }}</a></li>
-        {{end}}
-        <li class="ml-auto">
-            {{ if .PreFolder }}
-            <a href="{{.PreFolder}}" class="badge badge-success mx-3"> < </a>
-            {{else}}
-            <span class="badge badge-secondary mx-3 invisible"> < </span>
-            {{end}}
-            {{if .NextFolder}}
-            <a href="{{.NextFolder}}" class="badge badge-success mx-3"> > </a>
-            {{else}}
-            <span class="badge badge-secondary mx-3 invisible"> > </span>
-            {{end}}
-            <span class="badge btn-primary" data-toggle="modal" data-target="#settingsModal">
-                =
-            </span>
-        </li>
-    </ol>
-</nav>
-{{end}}
-
-
-{{define "footer"}}
-<div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Settings</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form>
-                    <div class="form-group">
-                        <label for="lineImages">Images Per Line</label>
-                        <select class="form-control" id="lineImages">
-                            <option value="">Not Limited</option>
-                            <option value="col-md-12">1</option>
-                            <option value="col-md-6">2</option>
-                            <option value="col-md-4">3</option>
-                            <option value="col-md-3">4</option>
-                            <option value="col-md-2">6</option>
-                            <option value="col-md-1">12</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="lineVideos">Videos Per Line</label>
-                        <select class="form-control" id="lineVideos">
-                            <option value="">Not Limited</option>
-                            <option value="col-md-12">1</option>
-                            <option value="col-md-6">2</option>
-                            <option value="col-md-4">3</option>
-                            <option value="col-md-3">4</option>
-                            <option value="col-md-2">6</option>
-                            <option value="col-md-1">12</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="videoPreload">Video Preload</label>
-                        <select class="form-control" id="videoPreload">
-                            <option value="none">Nope</option>
-                            <option value="metadata">Cover</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="fixHeader">Fix Header</label>
-                        <select class="form-control" id="fixHeader">
-                            <option value="norm">Nope</option>
-                            <option value="fixed">Fix</option>
-                        </select>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <span>Made with ❤️ <a href="https://haoyu.love" class="text-decoration-none" target="_blank">Yu Hao</a></span>
-            </div>
+<header>
+    <div class="navbar navbar-dark bg-dark shadow-sm">
+        <div class="container">
+            <a href="#" class="navbar-brand d-flex align-items-center">
+                <strong>📸 ImgSrv</strong>
+            </a>
         </div>
     </div>
-</div>
+</header>
+{{end}}
+
+{{define "footer"}}
 <script src="/_/js/jquery.min.js"></script>
 <script src="/_/js/bootstrap.bundle.min.js"></script>
 <script src="/_/js/lightbox.min.js"></script>
 <script src="/_/js/js.cookie.min.js"></script>
-<script>
-    $(document).ready(function () {
-
-        function defaultCookie() {
-            $([["#lineImages", 'image_class', "col-md-4"],
-                ["#lineVideos", 'video_class', "col-md-4"],
-                ["#videoPreload", 'video_preload', "none"],
-                ["#fixHeader", 'app_fix_header', "norm"]]).each(function (idx, ele) {
-                if (undefined == Cookies.get(ele[1])) {
-                    Cookies.set(ele[1], ele[2]);
-                }
-                $(ele[0]).val(Cookies.get(ele[1]));
-                $(ele[0]).change(function () {
-                    Cookies.set(ele[1], $(ele[0]).val());
-                })
-            });
-        }
-
-        function applyStyle() {
-            $("a.img-thumbnail").addClass(Cookies.get('image_class'));
-            $("figure.img-thumbnail").addClass(Cookies.get('video_class'));
-            $("video").prop("preload", Cookies.get('video_preload'));
-            if ("fixed" == Cookies.get('app_fix_header')) {
-                $("nav").addClass("fixed-top");
-                $("#main").addClass("mt-5");
-            }
-        }
-
-        function darkMode() {
-            var hour = (new Date()).getHours();
-            if (hour <= 7 || hour >= 19) {
-                $(['body', 'figure', '.img-thumbnail', '.modal-content', '.jumbotron']).each((i, ele) => {
-                    $(ele).addClass('bg-dark');
-                })
-                $('nav>ol').addClass('bg-secondary');
-
-                $('table').addClass('table-dark');
-
-                $('body').addClass('text-white-50');
-                $('a').addClass('text-white');
-            }
-        }
-
-        lightbox.option({
-            'disableScrolling': true,
-            'resizeDuration': 0,
-            'wrapAround': true,
-            'fadeDuration': 0,
-            'imageFadeDuration': 0
-        });
-
-        darkMode();
-        defaultCookie();
-        applyStyle();
-    })
-</script>
 </body>
 </html>
 {{end}}

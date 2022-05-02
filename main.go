@@ -36,7 +36,7 @@ func main() {
 	frameworkG := frameworkRouter.Group("/_")
 
 	staticFiles, _ := fs.Sub(assets, "static")
-	frameworkG.StaticFS("/static", http.FS(staticFiles))
+	frameworkG.StaticFS("/", http.FS(staticFiles))
 
 	// The general router
 	appRouter := gin.Default()

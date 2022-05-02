@@ -46,12 +46,24 @@ func processSingleFolder(c *gin.Context) {
 	}
 	folders, files, pageNum, pageNumMax, pagePrev, pageNext := util.Pagination(*app.PageSize, pageNum, folders, files)
 
-	c.JSON(http.StatusOK, gin.H{
-		"folders":   folders,
-		"files":     files,
-		"page":      pageNum,
-		"page_prev": pagePrev,
-		"page_next": pageNext,
-		"page_max":  pageNumMax,
+	for i := range folders {
+		pa, _ := filepath.Rel(*app.Root, folders[i])
+		folders[i] = "/" + pa
+	}
+	for i := range files {
+		pa, _ := filepath.Rel(*app.Root, files[i])
+		files[i] = "/" + pa
+	}
+	pagination := map[string]interface{}{
+		"no":   pageNum,
+		"max":  pageNumMax,
+		"prev": pagePrev,
+		"next": pageNext,
+	}
+
+	c.HTML(http.StatusOK, "list.html", gin.H{
+		"folders":    folders,
+		"files":      files,
+		"pagination": pagination,
 	})
 }

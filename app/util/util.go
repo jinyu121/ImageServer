@@ -9,6 +9,9 @@ import (
 
 func Pagination(pageSize, pageNum int, folders, files []string) ([]string, []string, int, int, int, int) {
 	itemsCount := len(folders) + len(files)
+	if 0 == itemsCount {
+		return folders, files, 1, 1, -1, -1
+	}
 
 	pageNumMax := (itemsCount + pageSize - 1) / pageSize
 

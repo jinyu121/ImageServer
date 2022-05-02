@@ -1,51 +1,50 @@
-{{template "header"}}
-{{template "breadcrumb" .}}
-<div class="container-fluid" id="main">
-    {{ if .Folders }}
-    <div class="mb-3 table-responsive">
-        <table class="table table-striped table-hover">
-            <thead>
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">Folder</th>
-            </tr>
-            </thead>
-            <tbody>
-            {{range $index, $element := .Folders}}
-            <tr>
-                <th scope="row">{{ $index }}</th>
-                <td><a href="{{ $element }}">{{ pathToName $element }}</a></td>
-            </tr>
-            {{end}}
-            </tbody>
-        </table>
+{{template "header" .}}
+<main>
+    {{ if .folders }}
+    <div class="album py-5">
+        <div class="container">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+                {{range .folders}}
+                <div class="col">
+                    <a class="text-decoration-none" href="{{ . }}">
+                        <div class="card shadow-sm">
+                            <div class="row g-0">
+                                <div class="col-sm-1 align-content-center text-center fs-1">
+                                    🗂
+                                </div>
+                                <div class="col-md-11">
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ pathToName .}}</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {{end}}
+            </div>
+        </div>
     </div>
     {{end}}
 
-    {{ if .Images }}
-    <div class="row mb-3 text-center">
-        {{range .Images}}
-        <a href="{{ . }}" data-title="{{ pathToName . }}" title="{{ pathToName . }}" data-lightbox="ImageServer"
-           class="img-thumbnail" target="_blank">
-            <img src="{{ . }}" loading="lazy"/>
-        </a>
-        {{end}}
+    {{ if .files }}
+    <div class="album py-5">
+        <div class="container">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+                {{range .files}}
+                <div class="col">
+                    <a data-lightbox="ImageServer" data-title="{{ pathToName . }}"
+                       href="{{ . }}" target="_blank" title="{{ pathToName . }}">
+                        <div class="card shadow-sm">
+                            <img loading="lazy" src="{{ . }}"/>
+                        </div>
+                    </a>
+                </div>
+                {{end}}
+            </div>
+        </div>
     </div>
     {{end}}
 
-    {{ if .Videos }}
-    <div class="row mb-3">
-        {{range .Videos}}
-        <figure class="figure img-thumbnail d-inline mb-0">
-            <video controls buffered name="media" preload="none" class="embed-responsive">
-                <source src="{{ . }}">
-            </video>
-            <figcaption class="figure-caption text-center">
-                <a href="{{ . }}" target="_blank">{{ pathToName . }}</a>
-            </figcaption>
-        </figure>
-        {{end}}
-    </div>
-    {{end}}
-</div>
-{{template "footer"}}
+</main>
+{{template "footer" .}}
