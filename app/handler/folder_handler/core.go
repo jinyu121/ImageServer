@@ -3,7 +3,6 @@ package folder_handler
 import (
 	"os"
 	"path"
-	"path/filepath"
 	"sort"
 	"strings"
 )
@@ -99,20 +98,4 @@ func GetNeighborFolder(current, root string, offset int) (pre, nxt string) {
 		}
 	}
 	return
-}
-
-func IsImageFile(file string) bool {
-	switch strings.ToLower(filepath.Ext(file)) {
-	case ".jpg", ".jpeg", ".png", ".bmp", ".gif":
-		return true
-	}
-	return false
-}
-
-func IsVideoFile(file string) bool {
-	switch strings.ToLower(filepath.Ext(file)) {
-	case ".mp4", ".avi":
-		return true
-	}
-	return false
 }

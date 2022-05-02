@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"flag"
 	"fmt"
 	"haoyu.love/ImageServer/app/handler/folder_handler"
 	"haoyu.love/ImageServer/app/util"
@@ -9,6 +10,7 @@ import (
 	"io/fs"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -21,10 +23,16 @@ var (
 )
 
 func main() {
-	app.Init()
+	flag.Parse()
+	*app.Root, _ = filepath.Abs(*app.Root)
+
+	fileInfo, err := os.Stat(*app.Root)
+	if os.IsNotExist(err) {
+		panic(fmt.Sprintf("Path %s doesn't exists", *app.Root))
+	}
 
 	var ProcessFn func(*gin.Context)
-	fileInfo, _ := os.Stat(*app.Root)
+
 	if fileInfo.IsDir() {
 		ProcessFn = folder_handler.Process
 	} else {

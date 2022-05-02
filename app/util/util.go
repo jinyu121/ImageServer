@@ -108,7 +108,7 @@ func FilterItems(items []string, fn func(string) bool) []string {
 	return result
 }
 
-func RemoveLeft(data []string, str string) []string {
+func RemoveLeft(str string, data []string) []string {
 	for i := range data {
 		data[i] = strings.TrimPrefix(data[i], str)
 	}

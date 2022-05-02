@@ -46,15 +46,10 @@ func processSingleFolder(c *gin.Context) {
 	}
 	folders, files, pageNum, pageNumMax, pagePrev, pageNext := util.Pagination(*app.PageSize, pageNum, folders, files)
 
-	for i := range folders {
-		pa, _ := filepath.Rel(*app.Root, folders[i])
-		folders[i] = "/" + pa
-	}
-	for i := range files {
-		pa, _ := filepath.Rel(*app.Root, files[i])
-		files[i] = "/" + pa
-	}
-	pagination := map[string]interface{}{
+	folders = util.RemoveLeft(*app.Root, folders)
+	files = util.RemoveLeft(*app.Root, files)
+
+	pagination := gin.H{
 		"no":   pageNum,
 		"max":  pageNumMax,
 		"prev": pagePrev,
