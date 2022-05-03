@@ -24,5 +24,5 @@ ImageServer path/to/your/lmdb/database.lmdb
 ### Limit page size
 
 ```shell
-ImageServer path/to/your/folder --page 100
+ImageServer --page 100 path/to/your/folder
 ```
