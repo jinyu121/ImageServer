@@ -51,17 +51,24 @@ func processSingleFolder(c *gin.Context) {
 	folders = util.RemoveLeft(*app.Root, folders)
 	files = util.RemoveLeft(*app.Root, files)
 
-	folderPrev, folderNext := "", ""
+	folderPrev, folderNext, folderParent := "", "", ""
 	if path != *app.Root {
 		folderPrev, folderNext = GetNeighborFolder(path)
 		folderPrev = strings.TrimPrefix(folderPrev, *app.Root)
 		folderNext = strings.TrimPrefix(folderNext, *app.Root)
+
+		folderParent = filepath.Dir(path)
+		folderParent = strings.TrimPrefix(folderParent, *app.Root)
+		if "" == folderParent {
+			folderParent = "/"
+		}
 	}
 
 	navigation := gin.H{
-		"path": c.Param("path"),
-		"prev": folderPrev,
-		"next": folderNext,
+		"path":   c.Param("path"),
+		"prev":   folderPrev,
+		"next":   folderNext,
+		"parent": folderParent,
 	}
 
 	pagination := gin.H{
