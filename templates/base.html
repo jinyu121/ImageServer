@@ -17,9 +17,11 @@
                 <strong>📸 ImageServer</strong>
             </a>
             <ul class="nav nav-pills">
-                <li class="nav-item"><a href="{{ pageNum .navigation.path .pagination.prev }}" class="nav-link">⬆️</a>
+                <li class="nav-item"><a href="{{ pageNum .navigation.path .pagination.prev }}"
+                                        class="nav-link {{ if lt .pagination.prev 0 }} invisible {{end}}">⬆️</a>
                 </li>
-                <li class="nav-item"><a href="{{ pageNum .navigation.path .pagination.next }}" class="nav-link">⬇️</a>
+                <li class="nav-item"><a href="{{ pageNum .navigation.path .pagination.next }}"
+                                        class="nav-link {{ if lt .pagination.next 0 }} invisible {{end}}">⬇️</a>
                 </li>
                 <li class="nav-item"><a href="#" class="nav-link">️⬅️</a></li>
                 <li class="nav-item"><a href="#" class="nav-link">➡️</a></li>
