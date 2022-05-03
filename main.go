@@ -22,7 +22,7 @@ var (
 	assets embed.FS
 )
 
-func main() {
+func InitFlag() {
 	flag.Parse()
 	if 0 == flag.NArg() {
 		app.Root = "./"
@@ -32,8 +32,7 @@ func main() {
 	app.Root, _ = filepath.Abs(app.Root)
 
 	// Ensure the root exists.
-	fileInfo, err := os.Stat(app.Root)
-	if os.IsNotExist(err) {
+	if _, err := os.Stat(app.Root); os.IsNotExist(err) {
 		panic(fmt.Sprintf("Path %s doesn't exists", app.Root))
 	}
 
@@ -46,10 +45,12 @@ func main() {
 		util.ArrayToSet(app.FileExtension, app.DefaultAudioExt)
 		util.ArrayToSet(app.FileExtension, app.DefaultVideoExt)
 	}
+}
 
+func InitServer() *gin.Engine {
+	// Select proper process function
 	var ProcessFn func(*gin.Context)
-
-	if fileInfo.IsDir() {
+	if fileInfo, _ := os.Stat(app.Root); fileInfo.IsDir() {
 		ProcessFn = folder_handler.Process
 	} else {
 
@@ -77,7 +78,11 @@ func main() {
 			ProcessFn(c)
 		}
 	})
+	return appRouter
+}
 
+func main() {
+	InitFlag()
+	appRouter := InitServer()
 	_ = appRouter.Run(fmt.Sprintf(":%d", *app.Port))
-
 }
