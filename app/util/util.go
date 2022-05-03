@@ -38,18 +38,22 @@ func Pagination(pageSize, pageNum int, folders, files []string) ([]string, []str
 		}
 	}
 
-	if len(folders) < pageNumOffsetStart {
-		pageNumOffsetStart -= len(folders)
-		folders = []string{}
-	} else {
-		tmpEnd := pageNumOffsetEnd
-		if len(folders) < pageNumOffsetEnd {
-			tmpEnd = len(folders)
+	if len(folders) > 0 {
+		if len(folders) < pageNumOffsetStart {
+			pageNumOffsetStart -= len(folders)
+			folders = []string{}
+		} else {
+			tmpEnd := pageNumOffsetEnd
+			if len(folders) < pageNumOffsetEnd {
+				tmpEnd = len(folders)
+			}
+			folders = folders[pageNumOffsetStart:tmpEnd]
 		}
-		folders = folders[pageNumOffsetStart:tmpEnd]
+		pageNumOffsetEnd -= len(folders)
 	}
-	pageNumOffsetEnd -= len(folders)
-	files = files[pageNumOffsetStart:pageNumOffsetEnd]
+	if len(files) > 0 {
+		files = files[pageNumOffsetStart:pageNumOffsetEnd]
+	}
 
 	return folders, files, pageNum, pageNumMax, pagePrev, pageNext
 }
