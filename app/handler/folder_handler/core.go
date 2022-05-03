@@ -1,12 +1,13 @@
 package folder_handler
 
 import (
-	"haoyu.love/ImageServer/app"
-	"haoyu.love/ImageServer/app/util"
 	"os"
 	"path"
 	"sort"
 	"strings"
+
+	"haoyu.love/ImageServer/app"
+	"haoyu.love/ImageServer/app/util"
 )
 
 // GetFolderContent gets folders and files from the given directory

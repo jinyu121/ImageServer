@@ -2,9 +2,6 @@ package csv_handler
 
 import (
 	"encoding/csv"
-	"github.com/gin-gonic/gin"
-	"haoyu.love/ImageServer/app"
-	"haoyu.love/ImageServer/app/util"
 	"io"
 	"log"
 	"net/http"
@@ -12,6 +9,10 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+	"haoyu.love/ImageServer/app"
+	"haoyu.love/ImageServer/app/util"
 )
 
 var (
@@ -49,14 +50,15 @@ func Init(path string, column int) {
 }
 
 func Process(c *gin.Context) {
-	folders := make([]string, 0)
-	files := Data
-
 	pageNumStr := c.DefaultQuery("p", "1")
 	pageNum, err := strconv.Atoi(pageNumStr)
 	if err != nil {
 		pageNum = 1
 	}
+
+	folders := make([]string, 0)
+	files := Data
+
 	folders, files, pageNum, pageNumMax, pagePrev, pageNext := util.Pagination(*app.PageSize, pageNum, folders, files)
 
 	folderPrev, folderNext, folderParent := "", "", ""

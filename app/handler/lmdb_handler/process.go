@@ -3,11 +3,14 @@ package lmdb_handler
 import (
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/bmatsuo/lmdb-go/lmdb"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/gin-gonic/gin"
+	"haoyu.love/ImageServer/app"
+	"haoyu.love/ImageServer/app/util"
 )
 
 func Init(path string) {
@@ -43,19 +46,23 @@ func Process(c *gin.Context) {
 	name := c.Param("path")[1:]
 	namePart := strings.Split(name, "/")
 	currNode := LmdbTree
-	for ith, k := range namePart {
-		if _, ok := currNode.Children[k]; !ok {
-			c.String(http.StatusNotFound, "Not found")
-			return
-		}
-		currNode = currNode.Children[k]
-		if ith == len(namePart)-1 {
-			if currNode.Leaf {
-				processFile(c)
-			} else {
-				processSingleFolder(c)
+	if "" == name {
+		processSingleFolder(c)
+	} else {
+		for ith, k := range namePart {
+			if _, ok := currNode.Children[k]; !ok {
+				c.String(http.StatusNotFound, "Not found")
+				return
 			}
-			return
+			currNode = currNode.Children[k]
+			if ith == len(namePart)-1 {
+				if currNode.IsFile {
+					processFile(c)
+				} else {
+					processSingleFolder(c)
+				}
+				return
+			}
 		}
 	}
 }
@@ -75,5 +82,44 @@ func processFile(c *gin.Context) {
 }
 
 func processSingleFolder(c *gin.Context) {
-	c.String(http.StatusOK, "Path: %s", c.Param("path"))
+	name := c.Param("path")[1:]
+	pageNumStr := c.DefaultQuery("p", "1")
+	pageNum, err := strconv.Atoi(pageNumStr)
+	if err != nil {
+		pageNum = 1
+	}
+
+	namePart := strings.Split(name, "/")
+	currNode := LmdbTree
+	if "" != name {
+		for _, k := range namePart {
+			currNode = currNode.Children[k]
+		}
+	}
+
+	folderPrev, folderNext, folderParent := "", "", ""
+	if nil != currNode.Parent {
+		folderPrev, folderNext = GetNeighborFolder(currNode)
+		folderParent = GetPath(currNode.Parent)
+	}
+
+	folders, files, _ := GetFolderContent(currNode)
+	folders, files, pageNum, pageNumMax, pagePrev, pageNext := util.Pagination(*app.PageSize, pageNum, folders, files)
+
+	c.HTML(http.StatusOK, "list.html", gin.H{
+		"folders": folders,
+		"files":   files,
+		"pagination": gin.H{
+			"num":  pageNum,
+			"max":  pageNumMax,
+			"prev": pagePrev,
+			"next": pageNext,
+		},
+		"navigation": gin.H{
+			"path":   c.Param("path"),
+			"prev":   folderPrev,
+			"next":   folderNext,
+			"parent": folderParent,
+		},
+	})
 }
