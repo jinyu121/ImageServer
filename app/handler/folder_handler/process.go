@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 )
 
 func Process(c *gin.Context) {
@@ -50,10 +51,17 @@ func processSingleFolder(c *gin.Context) {
 	folders = util.RemoveLeft(*app.Root, folders)
 	files = util.RemoveLeft(*app.Root, files)
 
+	folderPrev, folderNext := "", ""
+	if path != *app.Root {
+		folderPrev, folderNext = GetNeighborFolder(path)
+		folderPrev = strings.TrimPrefix(folderPrev, *app.Root)
+		folderNext = strings.TrimPrefix(folderNext, *app.Root)
+	}
+
 	navigation := gin.H{
 		"path": c.Param("path"),
-		"prev": "",
-		"next": "",
+		"prev": folderPrev,
+		"next": folderNext,
 	}
 
 	pagination := gin.H{

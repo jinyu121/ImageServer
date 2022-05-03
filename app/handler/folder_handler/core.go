@@ -54,14 +54,11 @@ func GetFolderContent(root string) (folders []string, files []string, err error)
 	return
 }
 
-func GetNeighborFolder(current, root string, offset int) (pre, nxt string) {
-	if strings.TrimRight(current, "/") == strings.TrimRight(root, "/") {
-		return
-	}
-	baseFolder := path.Dir(current)
-	currentFolder := path.Base(current)
+func GetNeighborFolder(current string) (pre, nxt string) {
+	basePath := path.Dir(current)
+	currentName := path.Base(current)
 
-	folder, err := os.Open(baseFolder)
+	folder, err := os.Open(basePath)
 	if nil != err {
 		return
 	}
@@ -89,12 +86,12 @@ func GetNeighborFolder(current, root string, offset int) (pre, nxt string) {
 	sort.Strings(folders)
 
 	for i, val := range folders {
-		if val == currentFolder {
-			if i-offset >= 0 {
-				pre = strings.TrimPrefix(path.Join(baseFolder, folders[i-offset]), root)
+		if val == currentName {
+			if i-1 >= 0 {
+				pre = path.Join(basePath, folders[i-1])
 			}
-			if i+offset < len(folders) {
-				nxt = strings.TrimPrefix(path.Join(baseFolder, folders[i+offset]), root)
+			if i+1 < len(folders) {
+				nxt = path.Join(basePath, folders[i+1])
 			}
 			return
 		}
