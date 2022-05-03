@@ -6,7 +6,7 @@ import (
 
 var (
 	Root      = "./"
-	Port      = flag.Int("Port", 9420, "Listen Port")
+	Port      = flag.Int("port", 9420, "Listen Port")
 	PageSize  = flag.Int("page", 1000, "Page size")
 	Column    = flag.Int("column", 0, "Column")
 	ExtCustom = flag.String("ext", "", "File extensions")

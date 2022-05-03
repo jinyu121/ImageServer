@@ -4,6 +4,7 @@ import (
 	"embed"
 	"flag"
 	"fmt"
+	"haoyu.love/ImageServer/app/handler/csv_handler"
 	"haoyu.love/ImageServer/app/handler/folder_handler"
 	"haoyu.love/ImageServer/app/util"
 	"html/template"
@@ -31,6 +32,10 @@ func InitFlag() {
 	}
 	app.Root, _ = filepath.Abs(app.Root)
 
+	if *app.Column < 0 {
+		*app.Column = 0
+	}
+
 	// Ensure the root exists.
 	if _, err := os.Stat(app.Root); os.IsNotExist(err) {
 		panic(fmt.Sprintf("Path %s doesn't exists", app.Root))
@@ -53,7 +58,8 @@ func InitServer() *gin.Engine {
 	if fileInfo, _ := os.Stat(app.Root); fileInfo.IsDir() {
 		ProcessFn = folder_handler.Process
 	} else {
-
+		csv_handler.Init(app.Root, *app.Column)
+		ProcessFn = csv_handler.Process
 	}
 
 	// Router for the framework itself, such as static files
