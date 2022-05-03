@@ -13,10 +13,10 @@ import (
 
 func Process(c *gin.Context) {
 	path := c.Param("path")
-	fullPath := filepath.Join(*app.Root, path)
+	fullPath := filepath.Join(app.Root, path)
 	fullPath, _ = filepath.Abs(fullPath)
 
-	if ok, _ := util.IsSubFolder(*app.Root, fullPath); !ok {
+	if ok, _ := util.IsSubFolder(app.Root, fullPath); !ok {
 		c.String(http.StatusNotFound, "Not found")
 		return
 	}
@@ -32,12 +32,12 @@ func Process(c *gin.Context) {
 }
 
 func processFile(c *gin.Context) {
-	path := filepath.Join(*app.Root, c.Param("path"))
+	path := filepath.Join(app.Root, c.Param("path"))
 	c.File(path)
 }
 
 func processSingleFolder(c *gin.Context) {
-	path := filepath.Join(*app.Root, c.Param("path"))
+	path := filepath.Join(app.Root, c.Param("path"))
 
 	folders, files, err := GetFolderContent(path)
 	files = FilterTargetFile(files)
@@ -48,17 +48,17 @@ func processSingleFolder(c *gin.Context) {
 	}
 	folders, files, pageNum, pageNumMax, pagePrev, pageNext := util.Pagination(*app.PageSize, pageNum, folders, files)
 
-	folders = util.RemoveLeft(*app.Root, folders)
-	files = util.RemoveLeft(*app.Root, files)
+	folders = util.RemoveLeft(app.Root, folders)
+	files = util.RemoveLeft(app.Root, files)
 
 	folderPrev, folderNext, folderParent := "", "", ""
-	if path != *app.Root {
+	if path != app.Root {
 		folderPrev, folderNext = GetNeighborFolder(path)
-		folderPrev = strings.TrimPrefix(folderPrev, *app.Root)
-		folderNext = strings.TrimPrefix(folderNext, *app.Root)
+		folderPrev = strings.TrimPrefix(folderPrev, app.Root)
+		folderNext = strings.TrimPrefix(folderNext, app.Root)
 
 		folderParent = filepath.Dir(path)
-		folderParent = strings.TrimPrefix(folderParent, *app.Root)
+		folderParent = strings.TrimPrefix(folderParent, app.Root)
 		if "" == folderParent {
 			folderParent = "/"
 		}

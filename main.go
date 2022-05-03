@@ -24,12 +24,17 @@ var (
 
 func main() {
 	flag.Parse()
-	*app.Root, _ = filepath.Abs(*app.Root)
+	if 0 == flag.NArg() {
+		app.Root = "./"
+	} else {
+		app.Root = flag.Arg(0)
+	}
+	app.Root, _ = filepath.Abs(app.Root)
 
 	// Ensure the root exists.
-	fileInfo, err := os.Stat(*app.Root)
+	fileInfo, err := os.Stat(app.Root)
 	if os.IsNotExist(err) {
-		panic(fmt.Sprintf("Path %s doesn't exists", *app.Root))
+		panic(fmt.Sprintf("Path %s doesn't exists", app.Root))
 	}
 
 	// Process Extension

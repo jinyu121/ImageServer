@@ -5,8 +5,8 @@ import (
 )
 
 var (
+	Root      = "./"
 	Port      = flag.Int("Port", 9420, "Listen Port")
-	Root      = flag.String("root", "./", "Image folder, or image list file")
 	PageSize  = flag.Int("page", 1000, "Page size")
 	Column    = flag.Int("column", 0, "Column")
 	ExtCustom = flag.String("ext", "", "File extensions")
