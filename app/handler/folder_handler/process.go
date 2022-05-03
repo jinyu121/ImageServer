@@ -64,24 +64,20 @@ func processSingleFolder(c *gin.Context) {
 		}
 	}
 
-	navigation := gin.H{
-		"path":   c.Param("path"),
-		"prev":   folderPrev,
-		"next":   folderNext,
-		"parent": folderParent,
-	}
-
-	pagination := gin.H{
-		"num":  pageNum,
-		"max":  pageNumMax,
-		"prev": pagePrev,
-		"next": pageNext,
-	}
-
 	c.HTML(http.StatusOK, "list.html", gin.H{
-		"folders":    folders,
-		"files":      files,
-		"pagination": pagination,
-		"navigation": navigation,
+		"folders": folders,
+		"files":   files,
+		"pagination": gin.H{
+			"num":  pageNum,
+			"max":  pageNumMax,
+			"prev": pagePrev,
+			"next": pageNext,
+		},
+		"navigation": gin.H{
+			"path":   c.Param("path"),
+			"prev":   folderPrev,
+			"next":   folderNext,
+			"parent": folderParent,
+		},
 	})
 }
