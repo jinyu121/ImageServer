@@ -19,6 +19,8 @@ var (
 )
 
 func Init(path string, column int) {
+	log.Printf("Reading column %d of file %s", column, path)
+
 	ext := strings.ToLower(filepath.Ext(path))
 
 	f, err := os.Open(path)
@@ -43,6 +45,7 @@ func Init(path string, column int) {
 		}
 		Data = append(Data, rec[column])
 	}
+	log.Printf("Done! %d records read", len(Data))
 }
 
 func Process(c *gin.Context) {

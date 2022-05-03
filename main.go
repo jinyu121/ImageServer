@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"haoyu.love/ImageServer/app/handler/csv_handler"
 	"haoyu.love/ImageServer/app/handler/folder_handler"
+	"haoyu.love/ImageServer/app/handler/lmdb_handler"
 	"haoyu.love/ImageServer/app/util"
 	"html/template"
 	"io/fs"
@@ -56,7 +57,12 @@ func InitServer() *gin.Engine {
 	// Select proper process function
 	var ProcessFn func(*gin.Context)
 	if fileInfo, _ := os.Stat(app.Root); fileInfo.IsDir() {
-		ProcessFn = folder_handler.Process
+		if ".lmdb" == filepath.Ext(app.Root) {
+			lmdb_handler.Init(app.Root)
+			ProcessFn = lmdb_handler.Process
+		} else {
+			ProcessFn = folder_handler.Process
+		}
 	} else {
 		csv_handler.Init(app.Root, *app.Column)
 		ProcessFn = csv_handler.Process
