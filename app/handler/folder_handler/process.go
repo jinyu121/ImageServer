@@ -13,8 +13,8 @@ import (
 )
 
 func Process(c *gin.Context) {
-	path := c.Param("path")
-	fullPath := filepath.Join(app.Root, path)
+	name := c.Param("path")
+	fullPath := filepath.Join(app.Root, name)
 	fullPath, _ = filepath.Abs(fullPath)
 
 	if ok, _ := util.IsSubFolder(app.Root, fullPath); !ok {
@@ -76,7 +76,7 @@ func processSingleFolder(c *gin.Context) {
 			"next": pageNext,
 		},
 		"navigation": gin.H{
-			"name":   c.Param("name"),
+			"path":   c.Param("path"),
 			"prev":   folderPrev,
 			"next":   folderNext,
 			"parent": folderParent,

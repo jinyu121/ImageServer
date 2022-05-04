@@ -4,19 +4,26 @@ import (
 	"embed"
 	"flag"
 	"fmt"
-	"haoyu.love/ImageServer/app/handler/csv_handler"
-	"haoyu.love/ImageServer/app/handler/folder_handler"
-	"haoyu.love/ImageServer/app/handler/lmdb_handler"
-	"haoyu.love/ImageServer/app/util"
 	"html/template"
 	"io/fs"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"haoyu.love/ImageServer/app/handler/csv_handler"
+	"haoyu.love/ImageServer/app/handler/folder_handler"
+	"haoyu.love/ImageServer/app/handler/lmdb_handler"
+	"haoyu.love/ImageServer/app/util"
+
 	"github.com/gin-gonic/gin"
 	"haoyu.love/ImageServer/app"
+)
+
+var (
+	Version = "Unknown"
+	Build   = "Unknown"
 )
 
 var (
@@ -25,6 +32,9 @@ var (
 )
 
 func InitFlag() {
+	if "Unknown" != Version {
+		gin.SetMode(gin.ReleaseMode)
+	}
 	flag.Parse()
 	if 0 == flag.NArg() {
 		app.Root = "./"
@@ -94,6 +104,7 @@ func InitServer() *gin.Engine {
 }
 
 func main() {
+	log.Println("ImageServer", Version, "Build", Build)
 	InitFlag()
 	appRouter := InitServer()
 	_ = appRouter.Run(fmt.Sprintf(":%d", *app.Port))
