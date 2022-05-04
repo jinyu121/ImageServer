@@ -5,23 +5,30 @@ on:
     types: [ created ]
 
 jobs:
-  releases-matrix:
-    name: Release Matrix
+  goreleaser:
+    name: Release Binaries
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        goos: [ linux, windows, darwin ]
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Set APP_VERSION env
-        run: echo APP_VERSION=$(echo ${GITHUB_REF} | rev | cut -d'/' -f 1 | rev ) >> ${GITHUB_ENV}
-      - name: Set APP_COMMIT env
-        run: echo APP_COMMIT=${GITHUB_SHA} >> ${GITHUB_ENV}
-
-      - uses: wangyoucao577/go-release-action@v1.16
+      - uses: actions/checkout@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          goos: ${{ matrix.goos }}
-          goarch: "amd64"
-          ldflags: "-X 'main.Version=${{ env.APP_VERSION }}' -X 'main.Build=${{ env.APP_COMMIT }}'"
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+
+      - name: Set env
+        id: app_info
+        run: |
+          echo ::set-output name=APP_NAME::${GITHUB_REF#refs/*/}
+          echo ::set-output name=APP_BRANCH::${GITHUB_REF#refs/heads/}
+          echo ::set-output name=APP_TAG::${GITHUB_REF#refs/tags/}
+          echo ::set-output name=APP_COMMIT::${GITHUB_SHA}
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v2
+        with:
+          distribution: goreleaser
+          version: latest
+          args: release --rm-dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
