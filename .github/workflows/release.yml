@@ -24,6 +24,9 @@ jobs:
           echo ::set-output name=APP_TAG::${GITHUB_REF#refs/tags/}
           echo ::set-output name=APP_COMMIT::${GITHUB_SHA}
 
+      - name: Install dependencies
+        run: sudo apt update && sudo apt-get install -y gcc-multilib gcc-mingw-w64
+
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
         with:
