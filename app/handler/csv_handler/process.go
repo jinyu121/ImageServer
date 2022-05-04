@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/schollz/progressbar/v3"
 	"haoyu.love/ImageServer/app"
 	"haoyu.love/ImageServer/app/util"
 )
@@ -20,7 +21,8 @@ var (
 )
 
 func Init(path string, column int) {
-	log.Printf("Reading column %d of file %s", column, path)
+	log.Printf("Scan column %d of file %s", column, path)
+	bar := progressbar.Default(-1, "Scanning")
 
 	ext := strings.ToLower(filepath.Ext(path))
 
@@ -45,6 +47,7 @@ func Init(path string, column int) {
 			continue
 		}
 		Data = append(Data, rec[column])
+		_ = bar.Add(1)
 	}
 	log.Printf("Done! %d records read", len(Data))
 }

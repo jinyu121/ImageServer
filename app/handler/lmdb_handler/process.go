@@ -9,6 +9,7 @@ import (
 	"github.com/bmatsuo/lmdb-go/lmdb"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/gin-gonic/gin"
+	"github.com/schollz/progressbar/v3"
 	"haoyu.love/ImageServer/app"
 	"haoyu.love/ImageServer/app/util"
 )
@@ -18,6 +19,7 @@ func Init(path string) {
 	InitDB(path)
 
 	log.Printf("Scan database %s", path)
+	bar := progressbar.Default(-1, "Scanning")
 	counter := 0
 	_ = LmdbEnv.View(func(txn *lmdb.Txn) (err error) {
 		cur, err := txn.OpenCursor(LmdbDBI)
@@ -36,10 +38,11 @@ func Init(path string) {
 			}
 
 			AddToTree(string(k))
+			_ = bar.Add(1)
 			counter += 1
 		}
 	})
-	log.Printf("Done! %d records read", counter)
+	log.Printf("Scan Done! %d records read", counter)
 }
 
 func Process(c *gin.Context) {
