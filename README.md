@@ -17,7 +17,7 @@ ImageServer
 ```shell
 ImageServer path/to/your/folder
 ImageServer path/to/your/list.txt
-ImageServer path/to/your/list.csv --column 0
+ImageServer --column 0 path/to/your/list.csv 
 ImageServer path/to/your/lmdb/database.lmdb
 ```
 
