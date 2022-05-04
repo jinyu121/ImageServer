@@ -1,8 +1,10 @@
 name: Release Binaries
 
 on:
-  release:
-    types: [ created ]
+  push:
+    tags:
+      - '*' # Tags like "v1.2.3"
+      - '**' # Tags like "release/v1.2.3"
 
 jobs:
   goreleaser:
