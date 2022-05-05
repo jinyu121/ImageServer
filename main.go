@@ -105,6 +105,15 @@ func main() {
 	log.Println("ImageServer", app.Version, "Build", app.Build)
 	InitFlag()
 	appRouter := InitServer()
+
 	go app.CheckUpdate()
+	listenOn := util.GetIPAddress()
+	if len(listenOn) > 0 {
+		fmt.Println("Listening on these addresses:")
+		for _, addr := range listenOn {
+			fmt.Printf("\thttp://%s:%d\n", addr, *app.Port)
+		}
+	}
+
 	_ = appRouter.Run(fmt.Sprintf(":%d", *app.Port))
 }

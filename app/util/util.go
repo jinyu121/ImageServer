@@ -1,10 +1,12 @@
 package util
 
 import (
-	"haoyu.love/ImageServer/app"
+	"net"
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"haoyu.love/ImageServer/app"
 )
 
 func Pagination(pageSize, pageNum int, folders, files []string) ([]string, []string, int, int, int, int) {
@@ -145,4 +147,34 @@ func ArrayToSet(data map[string]struct{}, arr []string) {
 	for _, v := range arr {
 		data[v] = struct{}{}
 	}
+}
+
+func GetIPAddress() []string {
+	result := make([]string, 0)
+
+	ifaces, err := net.Interfaces()
+	if nil != err {
+		return result
+	}
+
+	for _, i := range ifaces {
+		addrs, err := i.Addrs()
+		if nil != err {
+			continue
+		}
+		for _, addr := range addrs {
+			var ip net.IP
+			switch v := addr.(type) {
+			case *net.IPNet:
+				ip = v.IP
+			case *net.IPAddr:
+				ip = v.IP
+			}
+			if !ip.IsLoopback() {
+				result = append(result, ip.String())
+			}
+		}
+	}
+
+	return result
 }
