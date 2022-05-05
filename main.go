@@ -25,17 +25,12 @@ import (
 )
 
 var (
-	Version = "Unknown"
-	Build   = "Unknown"
-)
-
-var (
 	//go:embed static templates
 	assets embed.FS
 )
 
 func InitFlag() {
-	if "Unknown" != Version {
+	if "Unknown" != app.Version {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	flag.Parse()
@@ -107,8 +102,9 @@ func InitServer() *gin.Engine {
 }
 
 func main() {
-	log.Println("ImageServer", Version, "Build", Build)
+	log.Println("ImageServer", app.Version, "Build", app.Build)
 	InitFlag()
 	appRouter := InitServer()
+	go app.CheckUpdate()
 	_ = appRouter.Run(fmt.Sprintf(":%d", *app.Port))
 }
