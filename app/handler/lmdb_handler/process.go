@@ -53,7 +53,7 @@ func Process(c *gin.Context) {
 	} else if currNode.IsFile {
 		processFile(c)
 	} else {
-		processSingleFolder(c)
+		processFolder(c)
 	}
 }
 
@@ -71,7 +71,7 @@ func processFile(c *gin.Context) {
 	})
 }
 
-func processSingleFolder(c *gin.Context) {
+func processFolder(c *gin.Context) {
 	pageNumStr := c.DefaultQuery("p", "1")
 	pageNum, err := strconv.Atoi(pageNumStr)
 	if err != nil {

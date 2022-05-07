@@ -52,8 +52,10 @@ func InitFlag() {
 
 	// Process Extension
 	if "" != *app.ExtCustom {
-		ext := strings.Split(strings.ToLower(*app.ExtCustom), ",")
-		util.ArrayToSet(app.FileExtension, ext)
+		if "*" != *app.ExtCustom {
+			ext := strings.Split(strings.ToLower(*app.ExtCustom), ",")
+			util.ArrayToSet(app.FileExtension, ext)
+		}
 	} else {
 		util.ArrayToSet(app.FileExtension, app.DefaultImageExt)
 		util.ArrayToSet(app.FileExtension, app.DefaultAudioExt)

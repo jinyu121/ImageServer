@@ -15,13 +15,15 @@ type FolderContent struct {
 }
 
 func (f *FolderContent) FilterTargetFile() {
-	result := make([]string, 0)
-	for _, file := range f.Files {
-		if IsTargetFileM(file, app.FileExtension) {
-			result = append(result, file)
+	if len(app.FileExtension) > 0 {
+		result := make([]string, 0)
+		for _, file := range f.Files {
+			if IsTargetFileM(file, app.FileExtension) {
+				result = append(result, file)
+			}
 		}
+		f.Files = result
 	}
-	f.Files = result
 }
 
 func (f *FolderContent) RemovePrefix(str string) {
