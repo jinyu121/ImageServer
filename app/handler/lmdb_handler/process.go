@@ -3,7 +3,6 @@ package lmdb_handler
 import (
 	"log"
 	"net/http"
-	"path/filepath"
 	"strconv"
 
 	"github.com/bmatsuo/lmdb-go/lmdb"
@@ -58,10 +57,10 @@ func Process(c *gin.Context) {
 }
 
 func processFile(c *gin.Context) {
-	name := c.Param("path")[1:]
+	name := c.Param("path")
 
 	_ = LmdbEnv.View(func(txn *lmdb.Txn) (err error) {
-		v, err := txn.Get(LmdbDBI, []byte(name))
+		v, err := txn.Get(LmdbDBI, []byte(name[1:]))
 		if err != nil {
 			c.String(http.StatusInternalServerError, "Internal Server Error: %s", err)
 			return nil
@@ -107,7 +106,6 @@ func processFolder(c *gin.Context) {
 
 		if nil != currNode.Parent {
 			navigation.Prev, navigation.Next = GetNeighborFolder(currNode)
-			navigation.Current = filepath.Dir(navigation.Current)
 		}
 
 		c.HTML(http.StatusOK, "list.html", gin.H{

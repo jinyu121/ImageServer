@@ -19,7 +19,7 @@ type Node struct {
 var (
 	LmdbEnv  *lmdb.Env
 	LmdbDBI  lmdb.DBI
-	LmdbTree = &Node{Name: "/", IsFile: false, Parent: nil, Children: make(map[string]*Node)}
+	LmdbTree = &Node{Name: "", IsFile: false, Parent: nil, Children: make(map[string]*Node)}
 )
 
 func InitDB(path string) {
@@ -82,7 +82,7 @@ func GetNeighborFolder(node *Node) (pre, nxt string) {
 
 func GetFolderContent(root *Node) (content util.FolderContent, err error) {
 	content = util.FolderContent{
-		Name:    root.Name,
+		Name:    GetPath(root),
 		Folders: []string{},
 		Files:   []string{},
 	}
@@ -105,7 +105,7 @@ func GetFolderContent(root *Node) (content util.FolderContent, err error) {
 
 func GetPath(node *Node) (path string) {
 	if node.Parent == nil {
-		return "/" + node.Name
+		return node.Name
 	}
 	return GetPath(node.Parent) + "/" + node.Name
 }
