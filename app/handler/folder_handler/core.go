@@ -3,15 +3,21 @@ package folder_handler
 import (
 	"os"
 	"path"
+	"path/filepath"
 	"sort"
 	"strings"
 
-	"haoyu.love/ImageServer/app"
 	"haoyu.love/ImageServer/app/util"
 )
 
 // GetFolderContent gets folders and files from the given directory
-func GetFolderContent(root string) (folders []string, files []string, err error) {
+func GetFolderContent(root string) (content util.FolderContent, err error) {
+	content = util.FolderContent{
+		Name:    root,
+		Folders: []string{},
+		Files:   []string{},
+	}
+
 	// Ensure the root is a folder
 	rootInfo, err := os.Stat(root)
 	if nil != err {
@@ -42,15 +48,15 @@ func GetFolderContent(root string) (folders []string, files []string, err error)
 		}
 
 		if item.IsDir() {
-			folders = append(folders, path.Join(root, item.Name()))
+			content.Folders = append(content.Folders, path.Join(root, item.Name()))
 		} else {
-			files = append(files, path.Join(root, item.Name()))
+			content.Files = append(content.Files, path.Join(root, item.Name()))
 		}
 	}
 
 	// Sort to keep a static order
-	sort.Strings(folders)
-	sort.Strings(files)
+	sort.Strings(content.Folders)
+	sort.Strings(content.Files)
 
 	return
 }
@@ -100,12 +106,16 @@ func GetNeighborFolder(current string) (pre, nxt string) {
 	return
 }
 
-func FilterTargetFile(files []string) (result []string) {
-	result = make([]string, 0)
-	for _, file := range files {
-		if util.IsTargetFileM(file, app.FileExtension) {
-			result = append(result, file)
-		}
+func IsSubFolder(parent, sub string) (bool, error) {
+	up := ".." + string(os.PathSeparator)
+
+	// path-comparisons using filepath.Abs don't work reliably according to docs (no unique representation).
+	rel, err := filepath.Rel(parent, sub)
+	if err != nil {
+		return false, err
 	}
-	return result
+	if !strings.HasPrefix(rel, up) && rel != ".." {
+		return true, nil
+	}
+	return false, nil
 }

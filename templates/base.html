@@ -17,16 +17,16 @@
                 <strong>📸 ImageServer</strong>
             </a>
             <ul class="nav nav-pills">
-                <li class="nav-item"><a href="{{ .navigation.prev }}"
-                                        class="nav-link  {{ if not .navigation.prev }} invisible {{end}}">⏮</a></li>
-                <li class="nav-item"><a href="{{ .navigation.parent }}"
-                                        class="nav-link  {{ if not .navigation.parent }} invisible {{end}}">⏫</a></li>
-                <li class="nav-item"><a href="{{ .navigation.next }}"
-                                        class="nav-link  {{ if not .navigation.next }} invisible {{end}}">⏭</a></li>
-                <li class="nav-item"><a href="{{ pageNum .navigation.path .pagination.prev }}"
-                                        class="nav-link {{ if lt .pagination.prev 0 }} invisible {{end}}">🔼</a></li>
-                <li class="nav-item"><a href="{{ pageNum .navigation.path .pagination.next }}"
-                                        class="nav-link {{ if lt .pagination.next 0 }} invisible {{end}}">🔽</a></li>
+                <li class="nav-item"><a href="{{ .navigation.Prev }}"
+                                        class="nav-link  {{ if not .navigation.Prev }} invisible {{end}}">⏮</a></li>
+                <li class="nav-item"><a href="{{ .navigation.Parent }}"
+                                        class="nav-link  {{ if not .navigation.Parent }} invisible {{end}}">⏫</a></li>
+                <li class="nav-item"><a href="{{ .navigation.Next }}"
+                                        class="nav-link  {{ if not .navigation.Next }} invisible {{end}}">⏭</a></li>
+                <li class="nav-item"><a href="{{ .pagination.URLPrev }}"
+                                        class="nav-link {{ if lt .pagination.Prev 0 }} invisible {{end}}">🔼</a></li>
+                <li class="nav-item"><a href="{{ .pagination.URLNext }}"
+                                        class="nav-link {{ if lt .pagination.Next 0 }} invisible {{end}}">🔽</a></li>
             </ul>
         </div>
     </div>
@@ -39,7 +39,7 @@
         <nav class="nav nav-underline d-block" aria-label="breadcrumb">
             <ol class="breadcrumb user-select-none rounded-0">
                 <li class="breadcrumb-item"><a href="/" class="text-decoration-none">🏠 Home</a></li>
-                {{range breadCrumb .path }}
+                {{range breadCrumb .Current }}
                 <li class="breadcrumb-item"><a href="{{ . }}" class="text-decoration-none">{{ pathToName . }}</a></li>
                 {{end}}
             </ol>

@@ -2,105 +2,153 @@ package util
 
 import (
 	"net"
+	"net/url"
 	"path/filepath"
 	"sort"
 	"strings"
 
-	"haoyu.love/ImageServer/app"
+	"github.com/gin-gonic/gin"
 )
 
-func Pagination(pageSize, pageNum int, folders, files []string) ([]string, []string, int, int, int, int) {
-	itemsCount := len(folders) + len(files)
+func Paginate(content *[]FolderContent, size int, current int, url string) Pagination {
+	page := Pagination{Current: 1, Prev: -1, Next: -1, Total: 1, Size: size, Content: content, Url: url}
+	content_ := *content
+	// Totally empty
+	if 0 == len(content_) {
+		return page
+	}
+	// Ensure all element are all equal in size
+	numFolders, numFiles := len(content_[0].Folders), len(content_[0].Files)
+	for _, item := range content_ {
+		if len(item.Folders) != numFolders || len(item.Files) != numFiles {
+			return page
+		}
+	}
+
+	if size <= 0 {
+		return page
+	}
+	// Ensure all element are not empty
+	itemsCount := numFolders + numFiles
 	if 0 == itemsCount {
-		return folders, files, 1, 1, -1, -1
+		return page
 	}
 
-	pageNumMax := (itemsCount + pageSize - 1) / pageSize
+	// Calculate pagination
+	page.Current = current
+	page.Total = (itemsCount + size - 1) / size
 
-	if pageNum < 1 {
-		pageNum = 1
+	if page.Current < 1 {
+		page.Current = 1
 	}
-	if pageNum > pageNumMax {
-		pageNum = pageNumMax
+	if page.Current > page.Total {
+		page.Current = page.Total
 	}
-	pageNumOffsetStart := (pageNum - 1) * (*app.PageSize)
-	pageNumOffsetEnd := pageNum * (*app.PageSize)
-	if pageNumOffsetEnd > itemsCount {
-		pageNumOffsetEnd = itemsCount
+	offsetStart := (page.Current - 1) * page.Size
+	offsetEnd := page.Current * page.Size
+	if offsetEnd > itemsCount {
+		offsetEnd = itemsCount
 	}
 
-	pagePrev := -1
-	pageNext := -1
-	if pageNumMax > 1 {
-		if pageNum > 1 {
-			pagePrev = pageNum - 1
+	if page.Total > 1 {
+		if page.Current > 1 {
+			page.Prev = page.Current - 1
 		}
-		if pageNum < pageNumMax {
-			pageNext = pageNum + 1
+		if page.Current < page.Total {
+			page.Next = page.Current + 1
 		}
 	}
 
-	if len(folders) > 0 {
-		if len(folders) < pageNumOffsetStart {
-			pageNumOffsetStart -= len(folders)
-			folders = []string{}
-		} else {
-			tmpEnd := pageNumOffsetEnd
-			if len(folders) < pageNumOffsetEnd {
-				tmpEnd = len(folders)
+	// Limit folders and files
+	if numFolders > 0 {
+		if numFolders > offsetStart {
+			tmpStart := offsetStart
+			tmpEnd := offsetEnd
+			if offsetEnd > numFolders {
+				tmpEnd = numFolders
 			}
-			folders = folders[pageNumOffsetStart:tmpEnd]
+			for i := range content_ {
+				content_[i].Folders = content_[i].Folders[tmpStart:tmpEnd]
+			}
+			cnt := tmpEnd - tmpStart
+			offsetStart -= cnt
+			offsetEnd -= cnt * 2
+		} else {
+			for i := range content_ {
+				content_[i].Folders = make([]string, 0)
+			}
+			offsetStart -= numFolders
+			offsetEnd -= numFolders
 		}
-		pageNumOffsetEnd -= len(folders)
 	}
-	if len(files) > 0 {
-		files = files[pageNumOffsetStart:pageNumOffsetEnd]
+	if numFiles > 0 {
+		if offsetEnd > 0 {
+			for i := range content_ {
+				content_[i].Files = content_[i].Files[offsetStart:offsetEnd]
+			}
+		} else {
+			for i := range content_ {
+				content_[i].Files = make([]string, 0)
+			}
+		}
 	}
 
-	return folders, files, pageNum, pageNumMax, pagePrev, pageNext
+	return page
 }
 
-func AlignStringArrays(data [][]string) [][]string {
-	// How many arrays
-	n := len(data)
-	// Golang doesn't have dataset of set, so we have to use map
-	filesSet := make([]map[string]string, n)
-	// fileSet stores all the files
-	fileSet := make(map[string]bool)
-	// Record each array
-	for i, dataList := range data {
-		filesSet[i] = make(map[string]string)
-		for _, f := range dataList {
-			name := filepath.Base(f)
-			fileSet[name] = true
-			filesSet[i][name] = f
-		}
-	}
-	// Now we can get a non-duplicated file list
-	var i = 0
-	fileList := make([]string, len(fileSet))
-	for k := range fileSet {
-		fileList[i] = k
-		i++
-	}
-	sort.Strings(fileList)
-
-	// Make final result
-	result := make([][]string, len(fileSet))
-	for i, k := range fileList {
-		line := make([]string, n+1)
-		line[0] = k
-		for j, fileSetItem := range filesSet {
-			v, ok := fileSetItem[k]
-			if ok {
-				line[j+1] = v
-			} else {
-				line[j+1] = ""
-			}
-		}
-		result[i] = line
+func AlignContent(contents *[]FolderContent) FolderContent {
+	contents_ := *contents
+	n := len(contents_)
+	if n <= 1 {
+		return contents_[0]
 	}
 
+	// Deduplicate
+	folderSet := make(map[string]struct{})
+	fileSet := make(map[string]struct{})
+	for _, content := range contents_ {
+		for _, folder := range content.Folders {
+			folderSet[folder] = struct{}{}
+		}
+		for _, file := range content.Files {
+			fileSet[file] = struct{}{}
+		}
+	}
+
+	// Sort
+	folders := make([]string, 0, len(folderSet))
+	for folder := range folderSet {
+		folders = append(folders, folder)
+	}
+	sort.Strings(folders)
+
+	files := make([]string, 0, len(fileSet))
+	for file := range fileSet {
+		files = append(files, file)
+	}
+	sort.Strings(files)
+
+	// Align
+	for i := range contents_ {
+		contents_[i].Folders = align(contents_[i].Folders, folders)
+		contents_[i].Files = align(contents_[i].Files, files)
+	}
+	return FolderContent{Name: "", Folders: folders, Files: files}
+}
+
+func align(items, total []string) []string {
+	result := make([]string, len(total))
+	tmp := make(map[string]struct{})
+	for _, item := range items {
+		tmp[item] = struct{}{}
+	}
+	for i, item := range total {
+		if _, ok := tmp[item]; ok {
+			result[i] = item
+		} else {
+			result[i] = ""
+		}
+	}
 	return result
 }
 
@@ -114,9 +162,12 @@ func FilterItems(items []string, fn func(string) bool) []string {
 	return result
 }
 
-func RemoveLeft(str string, data []string) []string {
+func RemoveLeft(str string, data []string, nonEmpty bool) []string {
 	for i := range data {
 		data[i] = strings.TrimPrefix(data[i], str)
+		if "" == data[i] && nonEmpty {
+			data[i] = "/"
+		}
 	}
 	return data
 }
@@ -177,4 +228,12 @@ func GetIPAddress() []string {
 	}
 
 	return result
+}
+
+func GetCurrentUrl(c *gin.Context) string {
+	p := c.Request.URL.Path
+	q := c.Request.URL.Query()
+	u, _ := url.Parse(p)
+	u.RawQuery = q.Encode()
+	return u.String()
 }

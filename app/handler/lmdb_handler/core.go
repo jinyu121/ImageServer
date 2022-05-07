@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/bmatsuo/lmdb-go/lmdb"
+	"haoyu.love/ImageServer/app/util"
 )
 
 type Node struct {
@@ -63,15 +64,15 @@ func GetNeighborFolder(node *Node) (pre, nxt string) {
 	if nil == node.Parent {
 		return
 	}
-	_, folders, _ := GetFolderContent(parent)
+	content, _ := GetFolderContent(parent)
 	currentName := GetPath(node)
-	for i, val := range folders {
+	for i, val := range content.Folders {
 		if val == currentName {
 			if i-1 >= 0 {
-				pre = folders[i-1]
+				pre = content.Folders[i-1]
 			}
-			if i+1 < len(folders) {
-				nxt = folders[i+1]
+			if i+1 < len(content.Folders) {
+				nxt = content.Folders[i+1]
 			}
 			return
 		}
@@ -79,22 +80,27 @@ func GetNeighborFolder(node *Node) (pre, nxt string) {
 	return
 }
 
-func GetFolderContent(root *Node) (folders []string, files []string, err error) {
+func GetFolderContent(root *Node) (content util.FolderContent, err error) {
+	content = util.FolderContent{
+		Name:    root.Name,
+		Folders: []string{},
+		Files:   []string{},
+	}
 	basePath := GetPath(root)
 	for _, v := range root.Children {
 		pa := path.Join(basePath, v.Name)
 		if v.IsFile {
-			files = append(files, pa)
+			content.Files = append(content.Files, pa)
 		} else {
-			folders = append(folders, pa)
+			content.Folders = append(content.Folders, pa)
 		}
 	}
 
 	// Sort to keep a static order
-	sort.Strings(folders)
-	sort.Strings(files)
+	sort.Strings(content.Folders)
+	sort.Strings(content.Files)
 
-	return folders, files, nil
+	return content, nil
 }
 
 func GetPath(node *Node) (path string) {
@@ -102,4 +108,22 @@ func GetPath(node *Node) (path string) {
 		return "/" + node.Name
 	}
 	return GetPath(node.Parent) + "/" + node.Name
+}
+
+func GetNode(path string) (*Node, error) {
+	if strings.HasPrefix(path, "/") {
+		path = path[1:]
+	}
+	currNode := LmdbTree
+	if "" != path {
+		namePart := strings.Split(path, "/")
+		for _, k := range namePart {
+			if _, ok := currNode.Children[k]; !ok {
+				return nil, nil
+			} else {
+				currNode = currNode.Children[k]
+			}
+		}
+	}
+	return currNode, nil
 }

@@ -3,8 +3,8 @@ package lmdb_handler
 import (
 	"log"
 	"net/http"
+	"path/filepath"
 	"strconv"
-	"strings"
 
 	"github.com/bmatsuo/lmdb-go/lmdb"
 	"github.com/gabriel-vasile/mimetype"
@@ -46,27 +46,14 @@ func Init(path string) {
 }
 
 func Process(c *gin.Context) {
-	name := c.Param("path")[1:]
-	namePart := strings.Split(name, "/")
-	currNode := LmdbTree
-	if "" == name {
-		processSingleFolder(c)
+	name := c.Param("path")
+	currNode, err := GetNode(name)
+	if nil != err {
+		c.String(http.StatusNotFound, "Not found")
+	} else if currNode.IsFile {
+		processFile(c)
 	} else {
-		for ith, k := range namePart {
-			if _, ok := currNode.Children[k]; !ok {
-				c.String(http.StatusNotFound, "Not found")
-				return
-			}
-			currNode = currNode.Children[k]
-			if ith == len(namePart)-1 {
-				if currNode.IsFile {
-					processFile(c)
-				} else {
-					processSingleFolder(c)
-				}
-				return
-			}
-		}
+		processSingleFolder(c)
 	}
 }
 
@@ -85,44 +72,55 @@ func processFile(c *gin.Context) {
 }
 
 func processSingleFolder(c *gin.Context) {
-	name := c.Param("path")[1:]
 	pageNumStr := c.DefaultQuery("p", "1")
 	pageNum, err := strconv.Atoi(pageNumStr)
 	if err != nil {
 		pageNum = 1
 	}
 
-	namePart := strings.Split(name, "/")
-	currNode := LmdbTree
-	if "" != name {
-		for _, k := range namePart {
-			currNode = currNode.Children[k]
+	folderNames := []string{c.Param("path")}
+	for _, fdr := range c.QueryArray("c") {
+		folderNames = append(folderNames, fdr)
+	}
+	contents := make([]util.FolderContent, 0)
+	for _, name := range folderNames {
+		node, err := GetNode(name)
+		if nil != err {
+			continue
 		}
+		content, err := GetFolderContent(node)
+		if nil != err {
+			continue
+		}
+		content.FilterTargetFile()
+		contents = append(contents, content)
 	}
+	aligned := util.AlignContent(&contents)
+	pagination := util.Paginate(&contents, *app.PageSize, pageNum, util.GetCurrentUrl(c))
+	aligned = (*util.Paginate(&[]util.FolderContent{aligned}, *app.PageSize, pageNum, "").Content)[0]
 
-	folderPrev, folderNext, folderParent := "", "", ""
-	if nil != currNode.Parent {
-		folderPrev, folderNext = GetNeighborFolder(currNode)
-		folderParent = GetPath(currNode.Parent)
+	navigation := util.Navigation{}
+	if 1 == len(contents) {
+		content := contents[0]
+		navigation.Current = content.Name
+		currNode, _ := GetNode(content.Name)
+
+		if nil != currNode.Parent {
+			navigation.Prev, navigation.Next = GetNeighborFolder(currNode)
+			navigation.Current = filepath.Dir(navigation.Current)
+		}
+
+		c.HTML(http.StatusOK, "list.html", gin.H{
+			"content":    content,
+			"pagination": pagination,
+			"navigation": navigation,
+		})
+	} else {
+		c.HTML(http.StatusOK, "compare.html", gin.H{
+			"contents":   contents,
+			"pagination": pagination,
+			"navigation": navigation,
+			"aligned":    aligned,
+		})
 	}
-
-	folders, files, _ := GetFolderContent(currNode)
-	folders, files, pageNum, pageNumMax, pagePrev, pageNext := util.Pagination(*app.PageSize, pageNum, folders, files)
-
-	c.HTML(http.StatusOK, "list.html", gin.H{
-		"folders": folders,
-		"files":   files,
-		"pagination": gin.H{
-			"num":  pageNum,
-			"max":  pageNumMax,
-			"prev": pagePrev,
-			"next": pageNext,
-		},
-		"navigation": gin.H{
-			"path":   c.Param("path"),
-			"prev":   folderPrev,
-			"next":   folderNext,
-			"parent": folderParent,
-		},
-	})
 }

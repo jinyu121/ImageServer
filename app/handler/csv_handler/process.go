@@ -59,27 +59,19 @@ func Process(c *gin.Context) {
 		pageNum = 1
 	}
 
-	folders := make([]string, 0)
-	files := Data
+	contents := []util.FolderContent{{
+		Name:    "",
+		Folders: make([]string, 0),
+		Files:   Data,
+	},
+	}
+	pagination := util.Paginate(&contents, *app.PageSize, pageNum, util.GetCurrentUrl(c))
+	navigation := util.Navigation{}
 
-	folders, files, pageNum, pageNumMax, pagePrev, pageNext := util.Pagination(*app.PageSize, pageNum, folders, files)
-
-	folderPrev, folderNext, folderParent := "", "", ""
-
+	content := contents[0]
 	c.HTML(http.StatusOK, "list.html", gin.H{
-		"folders": folders,
-		"files":   files,
-		"pagination": gin.H{
-			"num":  pageNum,
-			"max":  pageNumMax,
-			"prev": pagePrev,
-			"next": pageNext,
-		},
-		"navigation": gin.H{
-			"path":   c.Param("path"),
-			"prev":   folderPrev,
-			"next":   folderNext,
-			"parent": folderParent,
-		},
+		"content":    content,
+		"pagination": pagination,
+		"navigation": navigation,
 	})
 }
