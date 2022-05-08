@@ -15,9 +15,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"haoyu.love/ImageServer/app/handler/csv_handler"
 	"haoyu.love/ImageServer/app/handler/folder_handler"
 	"haoyu.love/ImageServer/app/handler/lmdb_handler"
+	"haoyu.love/ImageServer/app/handler/text_handler"
 	"haoyu.love/ImageServer/app/util"
 
 	"github.com/gin-gonic/gin"
@@ -51,9 +51,9 @@ func InitFlag() {
 	}
 
 	// Process Extension
-	if "" != *app.ExtCustom {
-		if "*" != *app.ExtCustom {
-			ext := strings.Split(strings.ToLower(*app.ExtCustom), ",")
+	if "" != *app.CustomExt {
+		if "*" != *app.CustomExt {
+			ext := strings.Split(strings.ToLower(*app.CustomExt), ",")
 			util.ArrayToSet(app.FileExtension, ext)
 		}
 	} else {
@@ -74,8 +74,8 @@ func InitServer() *gin.Engine {
 			ProcessFn = folder_handler.Process
 		}
 	} else {
-		csv_handler.Init(app.Root, *app.Column)
-		ProcessFn = csv_handler.Process
+		text_handler.Init(app.Root, *app.Column, *app.CustomJsonPath)
+		ProcessFn = text_handler.Process
 	}
 
 	// Router for the framework itself, such as static files

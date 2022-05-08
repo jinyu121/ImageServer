@@ -10,11 +10,12 @@ var (
 )
 
 var (
-	Root      = "./"
-	Port      = flag.Int("port", 9420, "Listen Port")
-	PageSize  = flag.Int("page", 1000, "Page size")
-	Column    = flag.Int("column", 0, "Column")
-	ExtCustom = flag.String("ext", "", "File extensions")
+	Root           = "./"
+	Port           = flag.Int("port", 9420, "Listen Port")
+	PageSize       = flag.Int("page", 1000, "Page size")
+	Column         = flag.Int("column", 0, "Column")
+	CustomExt      = flag.String("ext", "", "File extensions")
+	CustomJsonPath = flag.String("json", "", "JsonPath if you are using json file")
 )
 
 var (
