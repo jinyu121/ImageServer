@@ -7,14 +7,15 @@ before:
     # you may remove this if you don't need go generate
     - go generate ./...
 builds:
-  - env:
+  - binary: image_server
+    env:
       - CGO_ENABLED=1
     goos:
       - linux
     goarch:
       - amd64
     ldflags:
-      - -X app.Version={{.Version}} -X app.Build={{.ShortCommit}}
+      - -s -w -X main.Version=v{{.Version}} -X main.Build={{.ShortCommit}}
 archives:
   - replacements:
       darwin: Darwin

@@ -11,7 +11,7 @@ import (
 
 var UpdateAPI = "https://api.github.com/repos/jinyu121/ImageServer/releases/latest"
 
-func CheckUpdate() {
+func CheckUpdate(current string) {
 	if gin.ReleaseMode != gin.Mode() {
 		return
 	}
@@ -36,7 +36,7 @@ func CheckUpdate() {
 	}
 	tagName := result["tag_name"].(string)
 	releaseURL := result["html_url"].(string)
-	if tagName != Version {
-		fmt.Printf("New version %s is available, please update.\n%s\n", tagName, releaseURL)
+	if tagName != current {
+		fmt.Printf("New version %s is available, please update: %s\n", tagName, releaseURL)
 	}
 }

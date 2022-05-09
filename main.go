@@ -25,12 +25,17 @@ import (
 )
 
 var (
+	Version = "Unknown"
+	Build   = "Unknown"
+)
+
+var (
 	//go:embed static templates
 	assets embed.FS
 )
 
 func InitFlag() {
-	if "Unknown" != app.Version {
+	if "Unknown" != Version {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	flag.Parse()
@@ -104,11 +109,11 @@ func InitServer() *gin.Engine {
 }
 
 func main() {
-	log.Println("ImageServer", app.Version, "Build", app.Build)
+	log.Println("ImageServer", Version, "Build", Build)
 	InitFlag()
 	appRouter := InitServer()
 
-	go app.CheckUpdate()
+	go app.CheckUpdate(Version)
 	listenOn := util.GetIPAddress()
 	if len(listenOn) > 0 {
 		fmt.Println("Listening on these addresses:")
