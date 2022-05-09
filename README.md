@@ -15,7 +15,7 @@ ImageServer
 ### Specified folder
 
 ```shell
-ImageServer path/to/your/folder
+image_server path/to/your/folder
 ```
 
 ### URL list
@@ -23,7 +23,7 @@ ImageServer path/to/your/folder
 Each line should be a URL
 
 ```shell
-ImageServer path/to/your/list.txt
+image_server path/to/your/list.txt
 ```
 
 ### CSV / TSV file
@@ -31,7 +31,7 @@ ImageServer path/to/your/list.txt
 You should specify which column (by index, not name) is the image URL
 
 ```shell
-ImageServer --column 0 path/to/your/list.csv
+image_server --column 0 path/to/your/list.csv
 ```
 
 ### JSON file
@@ -40,7 +40,7 @@ One line per JSON object (ImageServer do not support human-friendly formatted JS
 get the image URL by JSONPath syntax
 
 ```shell
-ImageServer --json "@.images[*]" path/to/your/json/file.json  
+image_server --json "@.images[*]" path/to/your/json/file.json  
 ```
 
 ### LMDB file
@@ -48,7 +48,7 @@ ImageServer --json "@.images[*]" path/to/your/json/file.json
 Keys will be separated by `/` to get virtual paths/folders
 
 ```shell
-ImageServer path/to/your/lmdb/database.lmdb
+image_server path/to/your/lmdb/database.lmdb
 ```
 
 ### Parameters
@@ -58,7 +58,7 @@ ImageServer path/to/your/lmdb/database.lmdb
 Default page size is 1000, you can change it by `--page` option
 
 ```shell
-ImageServer --page 100 path/to/your/folder
+image_server --page 100 path/to/your/folder
 ```
 
 #### Change port
@@ -66,7 +66,7 @@ ImageServer --page 100 path/to/your/folder
 Default port is 9420, you can change it by `--port` option
 
 ```shell
-ImageServer --port 2333 path/to/your/folder
+image_server --port 2333 path/to/your/folder
 ```
 
 ## Browse images in your browser
