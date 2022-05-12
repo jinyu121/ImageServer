@@ -1,9 +1,6 @@
 package text_handler
 
 import (
-	"bufio"
-	"encoding/csv"
-	"io"
 	"log"
 	"net/http"
 	"os"
@@ -13,13 +10,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/schollz/progressbar/v3"
-	"github.com/spyzhov/ajson"
 	"haoyu.love/ImageServer/app"
 	"haoyu.love/ImageServer/app/util"
-)
-
-var (
-	Data = make([]string, 0)
 )
 
 func Init(path string, column int, jsonP string) {
@@ -35,55 +27,13 @@ func Init(path string, column int, jsonP string) {
 
 	defer func() { _ = f.Close() }()
 
-	if ".json" == ext {
-		initJson(f, jsonP, bar)
+	if ".csv" == ext || ".tsv" == ext {
+		initXsv(f, ext, column, jsonP, bar)
 	} else {
-		initText(f, ext, column, bar)
+		initText(f, jsonP, bar)
 	}
 
 	log.Printf("Done! %d records read", len(Data))
-}
-
-func initText(f *os.File, ext string, column int, bar *progressbar.ProgressBar) {
-	csvReader := csv.NewReader(f)
-	if ".csv" != ext {
-		csvReader.Comma = '\t'
-	}
-
-	for {
-		_ = bar.Add(1)
-		rec, err := csvReader.Read()
-		if err == io.EOF {
-			break
-		}
-		if len(rec) < column {
-			continue
-		}
-		Data = append(Data, rec[column])
-	}
-}
-
-func initJson(f *os.File, jsonP string, bar *progressbar.ProgressBar) {
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		_ = bar.Add(1)
-
-		root, err := ajson.Unmarshal(scanner.Bytes())
-		if nil != err {
-			continue
-		}
-		nodes, err := root.JSONPath(jsonP)
-		if nil != err {
-			continue
-		}
-		for _, node := range nodes {
-			s, err := node.GetString()
-			if nil != err {
-				continue
-			}
-			Data = append(Data, s)
-		}
-	}
 }
 
 func Process(c *gin.Context) {
@@ -97,8 +47,7 @@ func Process(c *gin.Context) {
 		Name:    "",
 		Folders: make([]string, 0),
 		Files:   Data,
-	},
-	}
+	}}
 	pagination := util.Paginate(&contents, *app.PageSize, pageNum, util.GetCurrentUrl(c))
 	navigation := util.Navigation{}
 
