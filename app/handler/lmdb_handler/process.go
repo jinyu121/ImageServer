@@ -1,6 +1,7 @@
 package lmdb_handler
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -85,11 +86,13 @@ func processFolder(c *gin.Context) {
 	for _, name := range folderNames {
 		node, err := GetNode(name)
 		if nil != err {
-			continue
+			c.String(http.StatusNotFound, fmt.Sprintf("Path %s not found", name))
+			return
 		}
 		content, err := GetFolderContent(node)
 		if nil != err {
-			continue
+			c.String(http.StatusInternalServerError, fmt.Sprintf("Error while reading folder %s", name))
+			return
 		}
 		content.FilterTargetFile()
 		contents = append(contents, content)

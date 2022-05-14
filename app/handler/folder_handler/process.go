@@ -1,6 +1,7 @@
 package folder_handler
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -52,7 +53,12 @@ func processFolder(c *gin.Context) {
 	for _, name := range folderNames {
 		content, err := GetFolderContent(name)
 		if nil != err {
-			continue
+			if os.IsNotExist(err) {
+				c.String(http.StatusNotFound, fmt.Sprintf("Path %s not found", name))
+			} else {
+				c.String(http.StatusInternalServerError, fmt.Sprintf("Error while reading folder %s", name))
+			}
+			return
 		}
 		content.FilterTargetFile()
 		contents = append(contents, content)
