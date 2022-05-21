@@ -18,13 +18,14 @@ func Process(c *gin.Context) {
 	fullPath, _ = filepath.Abs(fullPath)
 
 	if ok, _ := IsSubFolder(app.Root, fullPath); !ok {
-		c.String(http.StatusNotFound, "Not found")
+		c.String(http.StatusNotFound, fmt.Sprintf("Path %s not found", name))
 		return
 	}
 
 	fileInfo, err := os.Stat(fullPath)
 	if os.IsNotExist(err) {
-		c.String(http.StatusNotFound, "Not found")
+		showDir, _ := filepath.Rel(app.Root, fullPath)
+		c.String(http.StatusNotFound, fmt.Sprintf("Path %s not found", showDir))
 	} else if fileInfo.IsDir() {
 		processFolder(c)
 	} else {
@@ -53,10 +54,11 @@ func processFolder(c *gin.Context) {
 	for _, name := range folderNames {
 		content, err := GetFolderContent(name)
 		if nil != err {
+			showDir, _ := filepath.Rel(app.Root, name)
 			if os.IsNotExist(err) {
-				c.String(http.StatusNotFound, fmt.Sprintf("Path %s not found", name))
+				c.String(http.StatusNotFound, fmt.Sprintf("Path %s not found", showDir))
 			} else {
-				c.String(http.StatusInternalServerError, fmt.Sprintf("Error while reading folder %s", name))
+				c.String(http.StatusInternalServerError, fmt.Sprintf("Error while reading folder %s", showDir))
 			}
 			return
 		}

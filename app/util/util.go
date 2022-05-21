@@ -108,10 +108,12 @@ func AlignContent(contents *[]FolderContent) FolderContent {
 	fileSet := make(map[string]struct{})
 	for _, content := range contents_ {
 		for _, folder := range content.Folders {
-			folderSet[folder] = struct{}{}
+			name := filepath.Base(folder)
+			folderSet[name] = struct{}{}
 		}
 		for _, file := range content.Files {
-			fileSet[file] = struct{}{}
+			name := filepath.Base(file)
+			fileSet[name] = struct{}{}
 		}
 	}
 
@@ -138,13 +140,15 @@ func AlignContent(contents *[]FolderContent) FolderContent {
 
 func align(items, total []string) []string {
 	result := make([]string, len(total))
-	tmp := make(map[string]struct{})
+	tmp := make(map[string]string)
 	for _, item := range items {
-		tmp[item] = struct{}{}
+		name := filepath.Base(item)
+		tmp[name] = item
 	}
 	for i, item := range total {
-		if _, ok := tmp[item]; ok {
-			result[i] = item
+		name := filepath.Base(item)
+		if val, ok := tmp[name]; ok {
+			result[i] = val
 		} else {
 			result[i] = ""
 		}
