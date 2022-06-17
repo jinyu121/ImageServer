@@ -60,36 +60,30 @@ func Paginate(content *[]FolderContent, size int, current int, url string) Pagin
 	}
 
 	// Limit folders and files
-	if numFolders > 0 {
-		if numFolders > offsetStart {
+	if offsetStart < numFolders {
+		if offsetEnd < numFolders {
 			tmpStart := offsetStart
 			tmpEnd := offsetEnd
-			if offsetEnd > numFolders {
-				tmpEnd = numFolders
-			}
 			for i := range content_ {
 				content_[i].Folders = content_[i].Folders[tmpStart:tmpEnd]
 			}
-			cnt := tmpEnd - tmpStart
-			offsetStart -= cnt
-			offsetEnd -= cnt * 2
 		} else {
+			tmpStart := offsetStart
+			tmpEnd := numFolders
 			for i := range content_ {
-				content_[i].Folders = make([]string, 0)
+				content_[i].Folders = content_[i].Folders[tmpStart:tmpEnd]
 			}
-			offsetStart -= numFolders
-			offsetEnd -= numFolders
+			tmpStart = 0
+			tmpEnd = offsetEnd - numFolders
+			for i := range content_ {
+				content_[i].Files = content_[i].Files[tmpStart:tmpEnd]
+			}
 		}
-	}
-	if numFiles > 0 {
-		if offsetEnd > 0 {
-			for i := range content_ {
-				content_[i].Files = content_[i].Files[offsetStart:offsetEnd]
-			}
-		} else {
-			for i := range content_ {
-				content_[i].Files = make([]string, 0)
-			}
+	} else {
+		tmpStart := offsetStart
+		tmpEnd := offsetEnd
+		for i := range content_ {
+			content_[i].Files = content_[i].Files[tmpStart:tmpEnd]
 		}
 	}
 
