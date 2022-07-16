@@ -2,6 +2,12 @@ package app
 
 import (
 	"flag"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+
+	"haoyu.love/ImageServer/app/util"
 )
 
 var (
@@ -14,11 +20,36 @@ var (
 )
 
 var (
-	DefaultImageExt = []string{".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".tif", ".svg", ".webp", ".ico"}
-	DefaultVideoExt = []string{".mp4", ".mkv", ".mov", ".wmv", ".flv", ".avi", ".rmvb", ".mpg", ".mpeg", ".m4v", ".3gp", ".3g2"}
-	DefaultAudioExt = []string{".mp3", ".wav", ".wma", ".ogg", ".flac"}
-)
-
-var (
 	FileExtension = make(map[string]struct{})
 )
+
+func InitFlag() {
+	flag.Parse()
+	if 0 == flag.NArg() {
+		Root = "./"
+	} else {
+		Root = flag.Arg(0)
+	}
+	Root, _ = filepath.Abs(Root)
+
+	if *Column < 0 {
+		*Column = 0
+	}
+
+	// Ensure the root exists.
+	if _, err := os.Stat(Root); os.IsNotExist(err) {
+		panic(fmt.Sprintf("Path %s doesn't exists", Root))
+	}
+
+	// Process Extension
+	if "" != *CustomExt {
+		if "*" != *CustomExt {
+			ext := strings.Split(strings.ToLower(*CustomExt), ",")
+			util.ArrayToSet(FileExtension, ext)
+		}
+	} else {
+		util.ArrayToSet(FileExtension, util.DefaultImageExt)
+		util.ArrayToSet(FileExtension, util.DefaultAudioExt)
+		util.ArrayToSet(FileExtension, util.DefaultVideoExt)
+	}
+}

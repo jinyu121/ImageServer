@@ -62,7 +62,7 @@ func processFolder(c *gin.Context) {
 			}
 			return
 		}
-		content.FilterTargetFile()
+		content.FilterTargetFile(app.FileExtension)
 		contents = append(contents, content)
 	}
 	aligned := util.AlignContent(&contents)

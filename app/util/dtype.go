@@ -4,8 +4,6 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
-
-	"haoyu.love/ImageServer/app"
 )
 
 type FolderContent struct {
@@ -14,11 +12,11 @@ type FolderContent struct {
 	Files   []string
 }
 
-func (f *FolderContent) FilterTargetFile() {
-	if len(app.FileExtension) > 0 {
+func (f *FolderContent) FilterTargetFile(target map[string]struct{}) {
+	if len(target) > 0 {
 		result := make([]string, 0)
 		for _, file := range f.Files {
-			if IsTargetFileM(file, app.FileExtension) {
+			if IsTargetFileM(file, target) {
 				result = append(result, file)
 			}
 		}

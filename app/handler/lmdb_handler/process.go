@@ -94,7 +94,7 @@ func processFolder(c *gin.Context) {
 			c.String(http.StatusInternalServerError, fmt.Sprintf("Error while reading folder %s", name))
 			return
 		}
-		content.FilterTargetFile()
+		content.FilterTargetFile(app.FileExtension)
 		contents = append(contents, content)
 	}
 	aligned := util.AlignContent(&contents)

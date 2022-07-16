@@ -151,16 +151,6 @@ func align(items, total []string) []string {
 	return result
 }
 
-func FilterItems(items []string, fn func(string) bool) []string {
-	result := make([]string, 0)
-	for _, val := range items {
-		if fn(val) {
-			result = append(result, val)
-		}
-	}
-	return result
-}
-
 func RemoveLeft(str string, data []string, nonEmpty bool) []string {
 	for i := range data {
 		data[i] = strings.TrimPrefix(data[i], str)
@@ -169,18 +159,6 @@ func RemoveLeft(str string, data []string, nonEmpty bool) []string {
 		}
 	}
 	return data
-}
-
-func IsTargetFileL(file string, target ...[]string) bool {
-	ext := strings.ToLower(filepath.Ext(file))
-	for _, t := range target {
-		for _, v := range t {
-			if ext == v {
-				return true
-			}
-		}
-	}
-	return false
 }
 
 func IsTargetFileM(file string, target ...map[string]struct{}) bool {

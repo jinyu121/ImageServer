@@ -5,7 +5,6 @@ package main
 
 import (
 	"embed"
-	"flag"
 	"fmt"
 	"html/template"
 	"io/fs"
@@ -35,40 +34,6 @@ var (
 	//go:embed static templates
 	assets embed.FS
 )
-
-func InitFlag() {
-	if "Unknown" != Version {
-		gin.SetMode(gin.ReleaseMode)
-	}
-	flag.Parse()
-	if 0 == flag.NArg() {
-		app.Root = "./"
-	} else {
-		app.Root = flag.Arg(0)
-	}
-	app.Root, _ = filepath.Abs(app.Root)
-
-	if *app.Column < 0 {
-		*app.Column = 0
-	}
-
-	// Ensure the root exists.
-	if _, err := os.Stat(app.Root); os.IsNotExist(err) {
-		panic(fmt.Sprintf("Path %s doesn't exists", app.Root))
-	}
-
-	// Process Extension
-	if "" != *app.CustomExt {
-		if "*" != *app.CustomExt {
-			ext := strings.Split(strings.ToLower(*app.CustomExt), ",")
-			util.ArrayToSet(app.FileExtension, ext)
-		}
-	} else {
-		util.ArrayToSet(app.FileExtension, app.DefaultImageExt)
-		util.ArrayToSet(app.FileExtension, app.DefaultAudioExt)
-		util.ArrayToSet(app.FileExtension, app.DefaultVideoExt)
-	}
-}
 
 func InitServer() *gin.Engine {
 	// Select proper process function
@@ -111,8 +76,12 @@ func InitServer() *gin.Engine {
 }
 
 func main() {
+	if "Unknown" != Version {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	log.Println("ImageServer", Version, "Build", Build)
-	InitFlag()
+	app.InitFlag()
 
 	go app.CheckUpdate(Version)
 
