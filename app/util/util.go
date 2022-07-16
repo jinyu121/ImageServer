@@ -1,6 +1,7 @@
 package util
 
 import (
+	"bytes"
 	"net"
 	"net/url"
 	"path/filepath"
@@ -198,32 +199,41 @@ func ArrayToSet(data map[string]struct{}, arr []string) {
 	}
 }
 
-func GetIPAddress() []string {
-	result := make([]string, 0)
+func GetIPAddress() []net.IP {
+	result := make([]net.IP, 0)
 
 	ifaces, err := net.Interfaces()
 	if nil != err {
 		return result
 	}
 
-	for _, i := range ifaces {
-		addrs, err := i.Addrs()
-		if nil != err {
-			continue
-		}
-		for _, addr := range addrs {
-			var ip net.IP
-			switch v := addr.(type) {
-			case *net.IPNet:
-				ip = v.IP
-			case *net.IPAddr:
-				ip = v.IP
-			}
-			if !ip.IsLoopback() {
-				result = append(result, ip.String())
+	for _, face := range ifaces {
+		if addrs, err := face.Addrs(); nil == err {
+			for _, addr := range addrs {
+				var ip net.IP
+				switch v := addr.(type) {
+				case *net.IPNet:
+					ip = v.IP
+				case *net.IPAddr:
+					ip = v.IP
+				default:
+					continue
+				}
+
+				if !ip.IsUnspecified() &&
+					!ip.IsMulticast() &&
+					!ip.IsInterfaceLocalMulticast() &&
+					!ip.IsLinkLocalMulticast() &&
+					!ip.IsLinkLocalUnicast() {
+					result = append(result, ip)
+				}
 			}
 		}
 	}
+
+	sort.Slice(result, func(i, j int) bool {
+		return bytes.Compare(result[i], result[j]) < 0
+	})
 
 	return result
 }

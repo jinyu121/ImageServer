@@ -114,12 +114,19 @@ func main() {
 	appRouter := InitServer()
 
 	go app.CheckUpdate(Version)
+
 	listenOn := util.GetIPAddress()
 	if len(listenOn) > 0 {
 		fmt.Println("Listening on these addresses:")
 		for _, addr := range listenOn {
-			fmt.Printf("\thttp://%s:%d\n", addr, *app.Port)
+			if addr.To4() != nil {
+				fmt.Printf("\thttp://%s:%d\n", addr, *app.Port)
+			} else {
+				fmt.Printf("\thttp://[%s]:%d\n", addr, *app.Port)
+			}
 		}
+	} else {
+		fmt.Println("Failed to start server")
 	}
 
 	_ = appRouter.Run(fmt.Sprintf(":%d", *app.Port))
