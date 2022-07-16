@@ -12,8 +12,10 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"strings"
+	"syscall"
 
 	"haoyu.love/ImageServer/app/handler/folder_handler"
 	"haoyu.love/ImageServer/app/handler/lmdb_handler"
@@ -111,23 +113,36 @@ func InitServer() *gin.Engine {
 func main() {
 	log.Println("ImageServer", Version, "Build", Build)
 	InitFlag()
-	appRouter := InitServer()
 
 	go app.CheckUpdate(Version)
 
+	appRouter := InitServer()
+
+	go func() {
+		srv := &http.Server{
+			Addr:    fmt.Sprintf(":%d", *app.Port),
+			Handler: appRouter,
+		}
+		// service connections
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Error: %s\n", err)
+		}
+	}()
+
 	listenOn := util.GetIPAddress()
 	if len(listenOn) > 0 {
-		fmt.Println("Listening on these addresses:")
+		log.Println("Listening on these addresses:")
 		for _, addr := range listenOn {
 			if addr.To4() != nil {
-				fmt.Printf("\thttp://%s:%d\n", addr, *app.Port)
+				log.Printf("\thttp://%s:%d\n", addr, *app.Port)
 			} else {
-				fmt.Printf("\thttp://[%s]:%d\n", addr, *app.Port)
+				log.Printf("\thttp://[%s]:%d\n", addr, *app.Port)
 			}
 		}
-	} else {
-		fmt.Println("Failed to start server")
 	}
 
-	_ = appRouter.Run(fmt.Sprintf(":%d", *app.Port))
+	quit := make(chan os.Signal)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Println("Bye~")
 }
