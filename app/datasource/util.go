@@ -66,6 +66,16 @@ func (node *Node) GetAbsolutePath() (path string) {
 	return node.Parent.GetAbsolutePath() + "/" + node.Name
 }
 
+func IsTargetFileM(file string, target ...map[string]struct{}) bool {
+	ext := strings.ToLower(filepath.Ext(file))
+	for _, t := range target {
+		if _, ok := t[ext]; ok {
+			return true
+		}
+	}
+	return false
+}
+
 func RemoveLeft(str string, data []string, nonEmpty bool) []string {
 	for i := range data {
 		data[i] = strings.TrimPrefix(data[i], str)
@@ -76,12 +86,12 @@ func RemoveLeft(str string, data []string, nonEmpty bool) []string {
 	return data
 }
 
-func IsTargetFileM(file string, target ...map[string]struct{}) bool {
-	ext := strings.ToLower(filepath.Ext(file))
-	for _, t := range target {
-		if _, ok := t[ext]; ok {
-			return true
-		}
-	}
-	return false
+func AbsolutePath(prefix, relative string) (string, string) {
+	relativePart := strings.Trim(strings.TrimSpace(relative), "/")
+
+	absolute := filepath.Join(prefix, relativePart)
+	absolute, _ = filepath.Abs(absolute)
+	relativeNew := "/" + relativePart
+
+	return absolute, relativeNew
 }

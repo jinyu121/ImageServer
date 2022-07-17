@@ -13,23 +13,28 @@ type FolderDataSource struct {
 }
 
 func NewFolderDataSource(root string) *FolderDataSource {
-	ds := &FolderDataSource{Root: root}
+	rootAbsolute, _ := filepath.Abs(root)
+	ds := &FolderDataSource{Root: rootAbsolute}
 	return ds
 }
 
 func (ds *FolderDataSource) GetFile(filePath string) ([]byte, error) {
-	return nil, nil
+	currentAbs, _ := AbsolutePath(ds.Root, filePath)
+	data, err := os.ReadFile(currentAbs)
+	return data, err
 }
 
 func (ds *FolderDataSource) GetFolder(current string) (content FolderContent, err error) {
+	currentAbs, currentRelative := AbsolutePath(ds.Root, current)
+
 	content = FolderContent{
-		Name:    current,
+		Name:    currentRelative,
 		Folders: []string{},
 		Files:   []string{},
 	}
 
 	// Ensure the Root is a folder
-	rootInfo, err := os.Stat(current)
+	rootInfo, err := os.Stat(currentAbs)
 	if nil != err {
 		return
 	}
@@ -38,7 +43,7 @@ func (ds *FolderDataSource) GetFolder(current string) (content FolderContent, er
 	}
 
 	// Open the folder
-	folder, err := os.Open(current)
+	folder, err := os.Open(currentAbs)
 	if nil != err {
 		return
 	}
@@ -58,9 +63,9 @@ func (ds *FolderDataSource) GetFolder(current string) (content FolderContent, er
 		}
 
 		if item.IsDir() {
-			content.Folders = append(content.Folders, path.Join(current, item.Name()))
+			content.Folders = append(content.Folders, path.Join(currentRelative, item.Name()))
 		} else {
-			content.Files = append(content.Files, path.Join(current, item.Name()))
+			content.Files = append(content.Files, path.Join(currentRelative, item.Name()))
 		}
 	}
 
@@ -72,10 +77,15 @@ func (ds *FolderDataSource) GetFolder(current string) (content FolderContent, er
 }
 
 func (ds *FolderDataSource) GetNeighbor(current string) (pre string, nxt string) {
-	basePath := path.Dir(current)
+	if "/" == current || "" == current {
+		return
+	}
+
+	_, currentRelative := AbsolutePath(ds.Root, current)
+	baseAbs, baseRelative := AbsolutePath(ds.Root, path.Dir(currentRelative))
 	currentName := path.Base(current)
 
-	folder, err := os.Open(basePath)
+	folder, err := os.Open(baseAbs)
 	if nil != err {
 		return
 	}
@@ -105,10 +115,10 @@ func (ds *FolderDataSource) GetNeighbor(current string) (pre string, nxt string)
 	for i, val := range folders {
 		if val == currentName {
 			if i-1 >= 0 {
-				pre = path.Join(basePath, folders[i-1])
+				pre = path.Join(baseRelative, folders[i-1])
 			}
 			if i+1 < len(folders) {
-				nxt = path.Join(basePath, folders[i+1])
+				nxt = path.Join(baseRelative, folders[i+1])
 			}
 			return
 		}
@@ -117,14 +127,13 @@ func (ds *FolderDataSource) GetNeighbor(current string) (pre string, nxt string)
 }
 
 func (ds *FolderDataSource) Stat(filePath string) *FileStat {
-	fullPath := filepath.Join(ds.Root, filePath)
-	fullPath, _ = filepath.Abs(fullPath)
+	fullPath, _ := AbsolutePath(ds.Root, filePath)
 	result := &FileStat{
 		Exists: false,
 		IsFile: false,
 	}
 
-	if fileInfo, err := os.Stat(filePath); nil == err {
+	if fileInfo, err := os.Stat(fullPath); nil == err {
 		result.Exists = true
 		result.IsFile = !fileInfo.IsDir()
 	}
