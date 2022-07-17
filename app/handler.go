@@ -81,10 +81,11 @@ func (handler *ImageServerHandler) processFolder(c *gin.Context) {
 		})
 	} else {
 		c.HTML(http.StatusOK, "compare.html", gin.H{
-			"contents":   contents,
-			"pagination": pagination,
-			"navigation": navigation,
-			"aligned":    aligned,
+			"contents":    contents,
+			"pagination":  pagination,
+			"navigation":  navigation,
+			"aligned":     aligned,
+			"columnWidth": 90. / len(contents),
 		})
 	}
 }

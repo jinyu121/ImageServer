@@ -2,44 +2,49 @@
 {{$data := .}}
 <main>
     <div class="container-fluid">
-        <table class="table table-hover table-striped">
-            <thead>
-            <tr>
-                <th scope="col">#</th>
-                {{range .contents}}
-                <th scope="col"><a href="{{ .Name }}" target="_blank">🗂 {{ .Name }}</a></th>
-                {{end}}
-            </tr>
-            </thead>
-            <tbody>
-            {{range $i, $_ := .aligned.Folders }}
-            <tr>
-                <th scope="row">🗂</th>
-                {{range $_, $content := $data.contents}}
-                <td><a href="{{ index $content.Folders $i }}" target="_blank">{{ index $content.Folders $i }}</a></td>
-                {{end}}
-            </tr>
-            {{end}}
-            {{range $i, $filename := .aligned.Files }}
-            <tr>
-                <th scope="row">{{ pathToName $filename}}</th>
-                {{range $_, $content := $data.contents}}
-                <td>
-                    {{$filePath := index $content.Files $i}}
-                    {{if $filePath}}
-                    <a data-lightbox="ImageServer" data-title="{{ pathToName $filePath }}"
-                       href="{{ $filePath }}" target="_blank" title="{{ pathToName $filePath }}">
-                        <img class="img-fluid" loading="lazy" src="{{ $filePath }}"/>
-                    </a>
-                    {{else}}
+        <div class="table-responsive">
+            <table class="table table-hover table-striped">
+                <thead>
+                <tr>
+                    <th scope="col" style="width:10%">#</th>
+                    {{range .contents}}
+                    <th scope="col" style="width:{{ $data.columnWidth }}%">
+                        <a href="{{ .Name }}" target="_blank">🗂 {{ .Name }}</a>
+                    </th>
                     {{end}}
-                </td>
+                </tr>
+                </thead>
+                <tbody>
+                {{range $i, $_ := .aligned.Folders }}
+                <tr>
+                    <th scope="row">🗂</th>
+                    {{range $_, $content := $data.contents}}
+                    <td><a href="{{ index $content.Folders $i }}" target="_blank">{{ index $content.Folders $i }}</a>
+                    </td>
+                    {{end}}
+                </tr>
                 {{end}}
-            </tr>
-            {{end}}
+                {{range $i, $filename := .aligned.Files }}
+                <tr>
+                    <th scope="row">{{ pathToName $filename}}</th>
+                    {{range $_, $content := $data.contents}}
+                    <td>
+                        {{$filePath := index $content.Files $i}}
+                        {{if $filePath}}
+                        <a data-lightbox="ImageServer" data-title="{{ pathToName $filePath }}"
+                           href="{{ $filePath }}" target="_blank" title="{{ pathToName $filePath }}">
+                            <img class="img-fluid" loading="lazy" src="{{ $filePath }}"/>
+                        </a>
+                        {{else}}
+                        {{end}}
+                    </td>
+                    {{end}}
+                </tr>
+                {{end}}
 
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
     </div>
 </main>
 
