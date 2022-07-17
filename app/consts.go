@@ -1,4 +1,4 @@
-package util
+package app
 
 var (
 	DefaultAudioExt = []string{".mp3", ".wav", ".wma", ".ogg", ".flac"}

@@ -1,13 +1,18 @@
 package app
 
 import (
+	"embed"
 	"flag"
 	"fmt"
+	"html/template"
+	"io/fs"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"haoyu.love/ImageServer/app/util"
+	"github.com/gin-gonic/gin"
+	"haoyu.love/ImageServer/app/datasource"
 )
 
 var (
@@ -45,11 +50,52 @@ func InitFlag() {
 	if "" != *CustomExt {
 		if "*" != *CustomExt {
 			ext := strings.Split(strings.ToLower(*CustomExt), ",")
-			util.ArrayToSet(FileExtension, ext)
+			ArrayToSet(FileExtension, ext)
 		}
 	} else {
-		util.ArrayToSet(FileExtension, util.DefaultImageExt)
-		util.ArrayToSet(FileExtension, util.DefaultAudioExt)
-		util.ArrayToSet(FileExtension, util.DefaultVideoExt)
+		ArrayToSet(FileExtension, DefaultImageExt)
+		ArrayToSet(FileExtension, DefaultAudioExt)
+		ArrayToSet(FileExtension, DefaultVideoExt)
 	}
+}
+
+func InitServer(assets embed.FS) *gin.Engine {
+	// Select proper data source
+	var data DataSource
+
+	if fileInfo, _ := os.Stat(Root); fileInfo.IsDir() {
+		if ".lmdb" == filepath.Ext(Root) {
+			data = datasource.NewLmdbDataSource(Root)
+		} else {
+			data = datasource.NewFolderDataSource(Root)
+		}
+	} else {
+		data = datasource.NewTextFileDataSource(Root, *CustomJsonPath, *Column)
+	}
+
+	handler := NewImageServerHandler(&data)
+
+	// Router for the framework itself, such as static files
+	frameworkRouter := gin.New()
+	frameworkG := frameworkRouter.Group("/_")
+
+	staticFiles, _ := fs.Sub(assets, "static")
+	frameworkG.StaticFS("/", http.FS(staticFiles))
+
+	// The general router
+	appRouter := gin.Default()
+	templateFiles := template.Must(
+		template.New("").Funcs(TemplateFunction).ParseFS(assets, "templates/*.html"))
+	appRouter.SetHTMLTemplate(templateFiles)
+
+	appRouter.GET("/*path", func(c *gin.Context) {
+		path := c.Param("path")
+		// Special handling for the
+		if strings.HasPrefix(path, "/_/") {
+			frameworkRouter.HandleContext(c)
+		} else {
+			handler.Handle(c)
+		}
+	})
+	return appRouter
 }

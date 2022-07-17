@@ -1,36 +1,18 @@
-package util
+package app
 
 import (
 	"net/url"
 	"strconv"
 	"strings"
+
+	"haoyu.love/ImageServer/app/datasource"
 )
 
-type FolderContent struct {
-	Name    string
-	Folders []string
-	Files   []string
-}
-
-func (f *FolderContent) FilterTargetFile(target map[string]struct{}) {
-	if len(target) > 0 {
-		result := make([]string, 0)
-		for _, file := range f.Files {
-			if IsTargetFileM(file, target) {
-				result = append(result, file)
-			}
-		}
-		f.Files = result
-	}
-}
-
-func (f *FolderContent) RemovePrefix(str string) {
-	f.Name = strings.TrimPrefix(f.Name, str)
-	if "" == f.Name {
-		f.Name = "/"
-	}
-	f.Folders = RemoveLeft(str, f.Folders, false)
-	f.Files = RemoveLeft(str, f.Files, false)
+type DataSource interface {
+	GetFile(path string) ([]byte, error)
+	GetFolder(path string) (datasource.FolderContent, error)
+	GetNeighbor(current string) (pre string, nxt string)
+	Stat(filePath string) *datasource.FileStat
 }
 
 type Pagination struct {
@@ -40,7 +22,7 @@ type Pagination struct {
 	Total   int
 	Size    int
 	Url     string
-	Content *[]FolderContent
+	Content *[]datasource.FolderContent
 }
 
 func (p Pagination) URLPrev() string {

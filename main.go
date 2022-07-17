@@ -1,25 +1,13 @@
-//go:build linux || darwin || windows
-// +build linux darwin windows
-
 package main
 
 import (
 	"embed"
 	"fmt"
-	"html/template"
-	"io/fs"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
-	"path/filepath"
-	"strings"
 	"syscall"
-
-	"haoyu.love/ImageServer/app/handler/folder_handler"
-	"haoyu.love/ImageServer/app/handler/lmdb_handler"
-	"haoyu.love/ImageServer/app/handler/text_handler"
-	"haoyu.love/ImageServer/app/util"
 
 	"github.com/gin-gonic/gin"
 	"haoyu.love/ImageServer/app"
@@ -35,46 +23,6 @@ var (
 	assets embed.FS
 )
 
-func InitServer() *gin.Engine {
-	// Select proper process function
-	var ProcessFn func(*gin.Context)
-	if fileInfo, _ := os.Stat(app.Root); fileInfo.IsDir() {
-		if ".lmdb" == filepath.Ext(app.Root) {
-			lmdb_handler.Init(app.Root)
-			ProcessFn = lmdb_handler.Process
-		} else {
-			ProcessFn = folder_handler.Process
-		}
-	} else {
-		text_handler.Init(app.Root, *app.Column, *app.CustomJsonPath)
-		ProcessFn = text_handler.Process
-	}
-
-	// Router for the framework itself, such as static files
-	frameworkRouter := gin.New()
-	frameworkG := frameworkRouter.Group("/_")
-
-	staticFiles, _ := fs.Sub(assets, "static")
-	frameworkG.StaticFS("/", http.FS(staticFiles))
-
-	// The general router
-	appRouter := gin.Default()
-	templateFiles := template.Must(
-		template.New("").Funcs(util.TemplateFunction).ParseFS(assets, "templates/*.html"))
-	appRouter.SetHTMLTemplate(templateFiles)
-
-	appRouter.GET("/*path", func(c *gin.Context) {
-		path := c.Param("path")
-		// Special handling for the
-		if strings.HasPrefix(path, "/_/") {
-			frameworkRouter.HandleContext(c)
-		} else {
-			ProcessFn(c)
-		}
-	})
-	return appRouter
-}
-
 func main() {
 	if "Unknown" != Version {
 		gin.SetMode(gin.ReleaseMode)
@@ -85,7 +33,7 @@ func main() {
 
 	go app.CheckUpdate(Version)
 
-	appRouter := InitServer()
+	appRouter := app.InitServer(assets)
 
 	go func() {
 		srv := &http.Server{
@@ -98,7 +46,7 @@ func main() {
 		}
 	}()
 
-	listenOn := util.GetIPAddress()
+	listenOn := app.GetIPAddress()
 	if len(listenOn) > 0 {
 		log.Println("Listening on these addresses:")
 		for _, addr := range listenOn {

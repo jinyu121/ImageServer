@@ -1,4 +1,4 @@
-package folder_handler
+package datasource
 
 import (
 	"os"
@@ -6,20 +6,30 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-
-	"haoyu.love/ImageServer/app/util"
 )
 
-// GetFolderContent gets folders and files from the given directory
-func GetFolderContent(root string) (content util.FolderContent, err error) {
-	content = util.FolderContent{
-		Name:    root,
+type FolderDataSource struct {
+	Root string
+}
+
+func NewFolderDataSource(root string) *FolderDataSource {
+	ds := &FolderDataSource{Root: root}
+	return ds
+}
+
+func (ds *FolderDataSource) GetFile(filePath string) ([]byte, error) {
+	return nil, nil
+}
+
+func (ds *FolderDataSource) GetFolder(current string) (content FolderContent, err error) {
+	content = FolderContent{
+		Name:    current,
 		Folders: []string{},
 		Files:   []string{},
 	}
 
-	// Ensure the root is a folder
-	rootInfo, err := os.Stat(root)
+	// Ensure the Root is a folder
+	rootInfo, err := os.Stat(current)
 	if nil != err {
 		return
 	}
@@ -28,7 +38,7 @@ func GetFolderContent(root string) (content util.FolderContent, err error) {
 	}
 
 	// Open the folder
-	folder, err := os.Open(root)
+	folder, err := os.Open(current)
 	if nil != err {
 		return
 	}
@@ -48,9 +58,9 @@ func GetFolderContent(root string) (content util.FolderContent, err error) {
 		}
 
 		if item.IsDir() {
-			content.Folders = append(content.Folders, path.Join(root, item.Name()))
+			content.Folders = append(content.Folders, path.Join(current, item.Name()))
 		} else {
-			content.Files = append(content.Files, path.Join(root, item.Name()))
+			content.Files = append(content.Files, path.Join(current, item.Name()))
 		}
 	}
 
@@ -61,7 +71,7 @@ func GetFolderContent(root string) (content util.FolderContent, err error) {
 	return
 }
 
-func GetNeighborFolder(current string) (pre, nxt string) {
+func (ds *FolderDataSource) GetNeighbor(current string) (pre string, nxt string) {
 	basePath := path.Dir(current)
 	currentName := path.Base(current)
 
@@ -106,16 +116,18 @@ func GetNeighborFolder(current string) (pre, nxt string) {
 	return
 }
 
-func IsSubFolder(parent, sub string) (bool, error) {
-	up := ".." + string(os.PathSeparator)
+func (ds *FolderDataSource) Stat(filePath string) *FileStat {
+	fullPath := filepath.Join(ds.Root, filePath)
+	fullPath, _ = filepath.Abs(fullPath)
+	result := &FileStat{
+		Exists: false,
+		IsFile: false,
+	}
 
-	// path-comparisons using filepath.Abs don't work reliably according to docs (no unique representation).
-	rel, err := filepath.Rel(parent, sub)
-	if err != nil {
-		return false, err
+	if fileInfo, err := os.Stat(filePath); nil == err {
+		result.Exists = true
+		result.IsFile = !fileInfo.IsDir()
 	}
-	if !strings.HasPrefix(rel, up) && rel != ".." {
-		return true, nil
-	}
-	return false, nil
+
+	return result
 }

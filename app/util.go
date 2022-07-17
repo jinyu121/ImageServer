@@ -1,17 +1,19 @@
-package util
+package app
 
 import (
 	"bytes"
 	"net"
 	"net/url"
+	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"haoyu.love/ImageServer/app/datasource"
 )
 
-func Paginate(content *[]FolderContent, size int, current int, url string) Pagination {
+func Paginate(content *[]datasource.FolderContent, size int, current int, url string) Pagination {
 	page := Pagination{Current: 1, Prev: -1, Next: -1, Total: 1, Size: size, Content: content, Url: url}
 	content_ := *content
 	// Totally empty
@@ -91,7 +93,7 @@ func Paginate(content *[]FolderContent, size int, current int, url string) Pagin
 	return page
 }
 
-func AlignContent(contents *[]FolderContent) FolderContent {
+func AlignContent(contents *[]datasource.FolderContent) datasource.FolderContent {
 	contents_ := *contents
 	n := len(contents_)
 	if n <= 1 {
@@ -130,7 +132,7 @@ func AlignContent(contents *[]FolderContent) FolderContent {
 		contents_[i].Folders = align(contents_[i].Folders, folders)
 		contents_[i].Files = align(contents_[i].Files, files)
 	}
-	return FolderContent{Name: "", Folders: folders, Files: files}
+	return datasource.FolderContent{Name: "", Folders: folders, Files: files}
 }
 
 func align(items, total []string) []string {
@@ -149,26 +151,6 @@ func align(items, total []string) []string {
 		}
 	}
 	return result
-}
-
-func RemoveLeft(str string, data []string, nonEmpty bool) []string {
-	for i := range data {
-		data[i] = strings.TrimPrefix(data[i], str)
-		if "" == data[i] && nonEmpty {
-			data[i] = "/"
-		}
-	}
-	return data
-}
-
-func IsTargetFileM(file string, target ...map[string]struct{}) bool {
-	ext := strings.ToLower(filepath.Ext(file))
-	for _, t := range target {
-		if _, ok := t[ext]; ok {
-			return true
-		}
-	}
-	return false
 }
 
 func ArrayToSet(data map[string]struct{}, arr []string) {
@@ -222,4 +204,18 @@ func GetCurrentUrl(c *gin.Context) string {
 	u, _ := url.Parse(p)
 	u.RawQuery = q.Encode()
 	return u.String()
+}
+
+func IsSubFolder(parent string, sub string) (bool, error) {
+	up := ".." + string(os.PathSeparator)
+
+	// path-comparisons using filepath.Abs don't work reliably according to docs (no unique representation).
+	rel, err := filepath.Rel(parent, sub)
+	if err != nil {
+		return false, err
+	}
+	if !strings.HasPrefix(rel, up) && rel != ".." {
+		return true, nil
+	}
+	return false, nil
 }
