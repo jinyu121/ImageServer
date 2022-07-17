@@ -12,10 +12,10 @@ import (
 )
 
 type ImageServerHandler struct {
-	data DataSource
+	data datasource.DataSource
 }
 
-func NewImageServerHandler(data *DataSource) *ImageServerHandler {
+func NewImageServerHandler(data *datasource.DataSource) *ImageServerHandler {
 	handler := &ImageServerHandler{data: *data}
 	return handler
 }

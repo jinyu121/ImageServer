@@ -4,6 +4,13 @@ import (
 	"strings"
 )
 
+type DataSource interface {
+	GetFile(path string) ([]byte, error)
+	GetFolder(path string) (FolderContent, error)
+	GetNeighbor(current string) (pre string, nxt string)
+	Stat(filePath string) *FileStat
+}
+
 type FolderContent struct {
 	Name    string
 	Folders []string

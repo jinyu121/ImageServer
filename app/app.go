@@ -61,7 +61,7 @@ func InitFlag() {
 
 func InitServer(assets embed.FS) *gin.Engine {
 	// Select proper data source
-	var data DataSource
+	var data datasource.DataSource
 
 	if fileInfo, _ := os.Stat(Root); fileInfo.IsDir() {
 		if ".lmdb" == filepath.Ext(Root) {

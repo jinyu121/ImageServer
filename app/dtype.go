@@ -8,13 +8,6 @@ import (
 	"haoyu.love/ImageServer/app/datasource"
 )
 
-type DataSource interface {
-	GetFile(path string) ([]byte, error)
-	GetFolder(path string) (datasource.FolderContent, error)
-	GetNeighbor(current string) (pre string, nxt string)
-	Stat(filePath string) *datasource.FileStat
-}
-
 type Pagination struct {
 	Current int
 	Prev    int
