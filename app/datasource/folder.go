@@ -76,14 +76,18 @@ func (ds *FolderDataSource) GetFolder(current string) (content FolderContent, er
 	return
 }
 
-func (ds *FolderDataSource) GetNeighbor(current string) (pre string, nxt string) {
+func (ds *FolderDataSource) GetNeighbor(current string) (nav *Navigation) {
+	nav = &Navigation{}
 	if "/" == current || "" == current {
 		return
 	}
 
 	_, currentRelative := AbsolutePath(ds.Root, current)
-	baseAbs, baseRelative := AbsolutePath(ds.Root, path.Dir(currentRelative))
+	nav.Current = currentRelative
 	currentName := path.Base(current)
+
+	baseAbs, baseRelative := AbsolutePath(ds.Root, path.Dir(currentRelative))
+	nav.Parent = baseRelative
 
 	folder, err := os.Open(baseAbs)
 	if nil != err {
@@ -115,10 +119,10 @@ func (ds *FolderDataSource) GetNeighbor(current string) (pre string, nxt string)
 	for i, val := range folders {
 		if val == currentName {
 			if i-1 >= 0 {
-				pre = path.Join(baseRelative, folders[i-1])
+				nav.Prev = path.Join(baseRelative, folders[i-1])
 			}
 			if i+1 < len(folders) {
-				nxt = path.Join(baseRelative, folders[i+1])
+				nav.Next = path.Join(baseRelative, folders[i+1])
 			}
 			return
 		}

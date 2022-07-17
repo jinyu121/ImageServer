@@ -3,7 +3,6 @@ package app
 import (
 	"fmt"
 	"net/http"
-	"path/filepath"
 	"strconv"
 
 	"github.com/gabriel-vasile/mimetype"
@@ -70,12 +69,10 @@ func (handler *ImageServerHandler) processFolder(c *gin.Context) {
 	pagination := Paginate(&contents, *PageSize, pageNum, GetCurrentUrl(c))
 	aligned = (*Paginate(&[]datasource.FolderContent{aligned}, *PageSize, pageNum, "").Content)[0]
 
-	navigation := Navigation{}
+	navigation := datasource.Navigation{}
 	if 1 == len(contents) {
 		content := contents[0]
-		navigation.Current = content.Name
-		navigation.Prev, navigation.Next = handler.data.GetNeighbor(contents[0].Name)
-		navigation.Parent = filepath.Dir(navigation.Current)
+		navigation = *handler.data.GetNeighbor(contents[0].Name)
 
 		c.HTML(http.StatusOK, "list.html", gin.H{
 			"content":    content,

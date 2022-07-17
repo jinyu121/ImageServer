@@ -112,31 +112,39 @@ func (ds *LmdbDataSource) GetFolder(current string) (content FolderContent, err 
 	return content, nil
 }
 
-func (ds *LmdbDataSource) GetNeighbor(current string) (pre string, nxt string) {
+func (ds *LmdbDataSource) GetNeighbor(current string) (nav *Navigation) {
+	nav = &Navigation{}
+	if "/" == current || "" == current {
+		return
+	}
+
 	node, err := ds.lmdbFileTree.GetChild(current)
 	if nil != err {
 		return
 	}
+	nav.Current = node.GetAbsolutePath()
+
 	parent := node.Parent
 	if nil == node.Parent {
 		return
 	}
+	nav.Parent = parent.GetAbsolutePath()
 
-	folders := make([]string, 0)
+	folders := make([]*Node, 0)
 
 	for _, v := range parent.Children {
 		if !v.IsFile {
-			folders = append(folders, v.Name)
+			folders = append(folders, v)
 		}
 	}
 
 	for i, val := range folders {
-		if val == node.Name {
+		if val.Name == node.Name {
 			if i-1 >= 0 {
-				pre = folders[i-1]
+				nav.Prev = folders[i-1].GetAbsolutePath()
 			}
 			if i+1 < len(folders) {
-				nxt = folders[i+1]
+				nav.Next = folders[i+1].GetAbsolutePath()
 			}
 			return
 		}

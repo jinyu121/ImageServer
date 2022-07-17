@@ -1,13 +1,9 @@
 package datasource
 
-import (
-	"strings"
-)
-
 type DataSource interface {
 	GetFile(path string) ([]byte, error)
 	GetFolder(path string) (FolderContent, error)
-	GetNeighbor(current string) (pre string, nxt string)
+	GetNeighbor(current string) *Navigation
 	Stat(filePath string) *FileStat
 }
 
@@ -29,11 +25,9 @@ func (f *FolderContent) FilterTargetFile(target map[string]struct{}) {
 	}
 }
 
-func (f *FolderContent) RemovePrefix(str string) {
-	f.Name = strings.TrimPrefix(f.Name, str)
-	if "" == f.Name {
-		f.Name = "/"
-	}
-	f.Folders = RemoveLeft(str, f.Folders, false)
-	f.Files = RemoveLeft(str, f.Files, false)
+type Navigation struct {
+	Current string
+	Prev    string
+	Next    string
+	Parent  string
 }

@@ -3,7 +3,6 @@ package app
 import (
 	"net/url"
 	"strconv"
-	"strings"
 
 	"haoyu.love/ImageServer/app/datasource"
 )
@@ -38,21 +37,4 @@ func (p Pagination) offset(page int) string {
 	q.Set("p", strconv.Itoa(page))
 	u.RawQuery = q.Encode()
 	return u.String()
-}
-
-type Navigation struct {
-	Current string
-	Prev    string
-	Next    string
-	Parent  string
-}
-
-func (f *Navigation) RemovePrefix(str string) {
-	f.Current = strings.TrimPrefix(f.Current, str)
-	f.Prev = strings.TrimPrefix(f.Prev, str)
-	f.Next = strings.TrimPrefix(f.Next, str)
-	f.Parent = strings.TrimPrefix(f.Parent, str)
-	if "" == f.Parent && "" != f.Current {
-		f.Parent = "/"
-	}
 }

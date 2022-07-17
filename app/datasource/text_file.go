@@ -39,15 +39,16 @@ func (ds *TextFileDataSource) GetFolder(current string) (content FolderContent, 
 	return content, nil
 }
 
-func (ds *TextFileDataSource) GetNeighbor(current string) (pre string, nxt string) {
-	return "", ""
+func (ds *TextFileDataSource) GetNeighbor(current string) (nav *Navigation) {
+	nav = &Navigation{}
+	return nav
 }
 
 func (ds *TextFileDataSource) read() {
 	log.Printf("Scan column %d of file %s", ds.column, ds.Root)
 	bar := progressbar.Default(-1, "Scanning")
 	callback := func(path string) {
-		bar.Add(1)
+		_ = bar.Add(1)
 	}
 
 	ext := strings.ToLower(filepath.Ext(ds.Root))
