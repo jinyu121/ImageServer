@@ -22,15 +22,15 @@ type TextFileDataSource struct {
 
 func NewTextFileDataSource(root string, filter string, column int) *TextFileDataSource {
 	ds := &TextFileDataSource{Root: root, filter: filter, column: column}
-	ds.read()
+	ds.scan()
 	return ds
 }
 
-func (ds *TextFileDataSource) GetFile(filePath string) ([]byte, error) {
+func (ds *TextFileDataSource) GetFile(_ string) ([]byte, error) {
 	return nil, nil
 }
 
-func (ds *TextFileDataSource) GetFolder(current string) (content FolderContent, err error) {
+func (ds *TextFileDataSource) GetFolder(_ string) (content FolderContent, err error) {
 	content = FolderContent{
 		Name:    "",
 		Folders: []string{},
@@ -39,12 +39,12 @@ func (ds *TextFileDataSource) GetFolder(current string) (content FolderContent, 
 	return content, nil
 }
 
-func (ds *TextFileDataSource) GetNeighbor(current string) (nav *Navigation) {
+func (ds *TextFileDataSource) GetNeighbor(_ string) (nav *Navigation) {
 	nav = &Navigation{}
 	return nav
 }
 
-func (ds *TextFileDataSource) read() {
+func (ds *TextFileDataSource) scan() {
 	log.Printf("Scan column %d of file %s", ds.column, ds.Root)
 	bar := progressbar.Default(-1, "Scanning")
 	callback := func(path string) {
@@ -61,18 +61,21 @@ func (ds *TextFileDataSource) read() {
 	defer func() { _ = f.Close() }()
 
 	if ".csv" == ext || ".tsv" == ext {
-		ReadXsv(f, ext, ds.column, ds.filter, callback)
+		ds.data = ReadXsv(f, ext, ds.column, ds.filter, callback)
 	} else {
-		ReadText(f, ds.filter, callback)
+		ds.data = ReadText(f, ds.filter, callback)
 	}
 
-	log.Printf("Done! %d records read", len(ds.data))
+	log.Printf("Done! %d records scan", len(ds.data))
 }
 
 func (ds *TextFileDataSource) Stat(filePath string) *FileStat {
 	result := &FileStat{
 		Exists: false,
 		IsFile: false,
+	}
+	if "" == filePath || "/" == filePath {
+		result.Exists = true
 	}
 
 	return result
