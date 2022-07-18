@@ -18,7 +18,7 @@ type Node struct {
 }
 
 func NewRoot() *Node {
-	node := &Node{Name: "", IsFile: false, Parent: nil, Children: make(map[string]*Node)}
+	node := &Node{Name: "/", IsFile: false, Parent: nil, Children: make(map[string]*Node)}
 	return node
 }
 
@@ -63,7 +63,11 @@ func (node *Node) GetAbsolutePath() (path string) {
 	if node.Parent == nil {
 		return node.Name
 	}
-	return node.Parent.GetAbsolutePath() + "/" + node.Name
+	parent := node.Parent.GetAbsolutePath()
+	if "/" == parent {
+		return "/" + node.Name
+	}
+	return parent + "/" + node.Name
 }
 
 func IsTargetFileM(file string, target ...map[string]struct{}) bool {
@@ -74,16 +78,6 @@ func IsTargetFileM(file string, target ...map[string]struct{}) bool {
 		}
 	}
 	return false
-}
-
-func RemoveLeft(str string, data []string, nonEmpty bool) []string {
-	for i := range data {
-		data[i] = strings.TrimPrefix(data[i], str)
-		if "" == data[i] && nonEmpty {
-			data[i] = "/"
-		}
-	}
-	return data
 }
 
 func AbsolutePath(prefix, relative string) (string, string) {

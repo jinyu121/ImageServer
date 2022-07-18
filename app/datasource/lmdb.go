@@ -18,12 +18,12 @@ type LmdbDataSource struct {
 }
 
 func NewLmdbDataSource(filePath string) *LmdbDataSource {
-	ds := &LmdbDataSource{Root: ""}
-	ds.init(filePath)
+	ds := &LmdbDataSource{Root: "/"}
+	ds.scan(filePath)
 	return ds
 }
 
-func (ds *LmdbDataSource) init(filePath string) {
+func (ds *LmdbDataSource) scan(filePath string) {
 	ds.lmdbFileTree = NewRoot()
 
 	ds.lmdbEnv, _ = lmdb.NewEnv()
@@ -71,7 +71,7 @@ func (ds *LmdbDataSource) init(filePath string) {
 			counter += 1
 		}
 	})
-	log.Printf("Scan Done! %d records read", counter)
+	log.Printf("Scan Done! %d records scan", counter)
 }
 
 func (ds *LmdbDataSource) GetFile(filePath string) (data []byte, err error) {
@@ -125,18 +125,19 @@ func (ds *LmdbDataSource) GetNeighbor(current string) (nav *Navigation) {
 	nav.Current = node.GetAbsolutePath()
 
 	parent := node.Parent
-	if nil == node.Parent {
-		return
+	if nil != node.Parent {
+		nav.Parent = parent.GetAbsolutePath()
 	}
-	nav.Parent = parent.GetAbsolutePath()
 
 	folders := make([]*Node, 0)
-
 	for _, v := range parent.Children {
 		if !v.IsFile {
 			folders = append(folders, v)
 		}
 	}
+	sort.Slice(folders, func(i, j int) bool {
+		return folders[i].Name < folders[j].Name
+	})
 
 	for i, val := range folders {
 		if val.Name == node.Name {
@@ -158,7 +159,7 @@ func (ds *LmdbDataSource) Stat(filePath string) *FileStat {
 		IsFile: false,
 	}
 
-	if node, err := ds.lmdbFileTree.GetChild(filePath); nil != err {
+	if node, err := ds.lmdbFileTree.GetChild(filePath); nil == err {
 		result.Exists = true
 		result.IsFile = node.IsFile
 	}
