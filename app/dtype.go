@@ -14,6 +14,7 @@ type Pagination struct {
 	Total   int
 	Size    int
 	Url     string
+	Toc     *datasource.FolderContent
 	Content *[]datasource.FolderContent
 }
 

@@ -70,7 +70,7 @@ func (node *Node) GetAbsolutePath() (path string) {
 	return parent + "/" + node.Name
 }
 
-func IsTargetFileM(file string, target ...map[string]struct{}) bool {
+func IsTargetFile(file string, target ...map[string]struct{}) bool {
 	ext := strings.ToLower(filepath.Ext(file))
 	for _, t := range target {
 		if _, ok := t[ext]; ok {

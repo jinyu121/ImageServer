@@ -62,12 +62,11 @@ func (handler *ImageServerHandler) processFolder(c *gin.Context) {
 		if nil != err {
 			c.String(http.StatusInternalServerError, "Internal Server Error: %s", err)
 		}
-		content.FilterTargetFile(FileExtension)
 		contents = append(contents, content)
 	}
-	aligned := AlignContent(&contents)
-	pagination := Paginate(&contents, *PageSize, pageNum, GetCurrentUrl(c))
-	aligned = (*Paginate(&[]datasource.FolderContent{aligned}, *PageSize, pageNum, "").Content)[0]
+
+	aligned := DeduplicateFolderContent(&contents)
+	pagination := Paginate(&aligned, &contents, *PageSize, pageNum, GetCurrentUrl(c))
 
 	navigation := datasource.Navigation{}
 	if 1 == len(contents) {
@@ -85,7 +84,7 @@ func (handler *ImageServerHandler) processFolder(c *gin.Context) {
 			"pagination":  pagination,
 			"navigation":  navigation,
 			"aligned":     aligned,
-			"columnWidth": 90. / len(contents),
+			"columnWidth": 90. / len(contents), // Since the label column will take 10% of width
 		})
 	}
 }

@@ -17,7 +17,7 @@ func (f *FolderContent) FilterTargetFile(target map[string]struct{}) {
 	if len(target) > 0 {
 		result := make([]string, 0)
 		for _, file := range f.Files {
-			if IsTargetFileM(file, target) {
+			if IsTargetFile(file, target) {
 				result = append(result, file)
 			}
 		}

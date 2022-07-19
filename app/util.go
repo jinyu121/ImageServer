@@ -13,20 +13,15 @@ import (
 	"haoyu.love/ImageServer/app/datasource"
 )
 
-func Paginate(content *[]datasource.FolderContent, size int, current int, url string) Pagination {
-	page := Pagination{Current: 1, Prev: -1, Next: -1, Total: 1, Size: size, Content: content, Url: url}
-	content_ := *content
-	// Totally empty
-	if 0 == len(content_) {
-		return page
-	}
-	// Ensure all element are all equal in size
-	numFolders, numFiles := len(content_[0].Folders), len(content_[0].Files)
-	for _, item := range content_ {
-		if len(item.Folders) != numFolders || len(item.Files) != numFiles {
-			return page
-		}
-	}
+// Paginate paginates the given content in place, and returns the Pagination instance
+func Paginate(
+	ref *datasource.FolderContent,
+	contents *[]datasource.FolderContent,
+	size int, current int, url string) Pagination {
+
+	page := Pagination{Current: 1, Prev: -1, Next: -1, Total: 1, Size: size, Toc: ref, Url: url}
+
+	numFolders, numFiles := len(ref.Folders), len(ref.Files)
 
 	if size <= 0 {
 		return page
@@ -67,43 +62,35 @@ func Paginate(content *[]datasource.FolderContent, size int, current int, url st
 		if offsetEnd < numFolders {
 			tmpStart := offsetStart
 			tmpEnd := offsetEnd
-			for i := range content_ {
-				content_[i].Folders = content_[i].Folders[tmpStart:tmpEnd]
-			}
+			ref.Folders = ref.Folders[tmpStart:tmpEnd]
 		} else {
 			tmpStart := offsetStart
 			tmpEnd := numFolders
-			for i := range content_ {
-				content_[i].Folders = content_[i].Folders[tmpStart:tmpEnd]
-			}
+			ref.Folders = ref.Folders[tmpStart:tmpEnd]
+
 			tmpStart = 0
 			tmpEnd = offsetEnd - numFolders
-			for i := range content_ {
-				content_[i].Files = content_[i].Files[tmpStart:tmpEnd]
-			}
+			ref.Files = ref.Files[tmpStart:tmpEnd]
 		}
 	} else {
 		tmpStart := offsetStart
 		tmpEnd := offsetEnd
-		for i := range content_ {
-			content_[i].Files = content_[i].Files[tmpStart:tmpEnd]
-		}
+		ref.Files = ref.Files[tmpStart:tmpEnd]
 	}
+
+	// Align content
+	AlignContent(contents, ref)
+	page.Content = contents
 
 	return page
 }
 
-func AlignContent(contents *[]datasource.FolderContent) datasource.FolderContent {
-	contents_ := *contents
-	n := len(contents_)
-	if n <= 1 {
-		return contents_[0]
-	}
-
+// DeduplicateFolderContent merges the content of multiple FolderContent instances
+func DeduplicateFolderContent(contents *[]datasource.FolderContent) datasource.FolderContent {
 	// Deduplicate
 	folderSet := make(map[string]struct{})
 	fileSet := make(map[string]struct{})
-	for _, content := range contents_ {
+	for _, content := range *contents {
 		for _, folder := range content.Folders {
 			name := filepath.Base(folder)
 			folderSet[name] = struct{}{}
@@ -127,22 +114,35 @@ func AlignContent(contents *[]datasource.FolderContent) datasource.FolderContent
 	}
 	sort.Strings(files)
 
-	// Align
-	for i := range contents_ {
-		contents_[i].Folders = align(contents_[i].Folders, folders)
-		contents_[i].Files = align(contents_[i].Files, files)
-	}
 	return datasource.FolderContent{Name: "", Folders: folders, Files: files}
 }
 
-func align(items, total []string) []string {
-	result := make([]string, len(total))
+// AlignContent aligns the content of folders and files inplace according to the given content
+func AlignContent(contents *[]datasource.FolderContent, ref *datasource.FolderContent) {
+	contents_ := *contents
+	n := len(contents_)
+	if n <= 1 {
+		return
+	}
+
+	// Align
+	for i := range contents_ {
+		contents_[i].Folders = align(contents_[i].Folders, ref.Folders)
+		contents_[i].Files = align(contents_[i].Files, ref.Files)
+	}
+
+}
+
+// align the array to the given array of strings.
+// If something is not in the given array, a blank will be added in that place.
+func align(items, ref []string) []string {
+	result := make([]string, len(ref))
 	tmp := make(map[string]string)
 	for _, item := range items {
 		name := filepath.Base(item)
 		tmp[name] = item
 	}
-	for i, item := range total {
+	for i, item := range ref {
 		name := filepath.Base(item)
 		if val, ok := tmp[name]; ok {
 			result[i] = val
