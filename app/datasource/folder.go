@@ -131,10 +131,14 @@ func (ds *FolderDataSource) GetNeighbor(current string) (nav *Navigation) {
 }
 
 func (ds *FolderDataSource) Stat(filePath string) *FileStat {
-	fullPath, _ := AbsolutePath(ds.Root, filePath)
 	result := &FileStat{
 		Exists: false,
 		IsFile: false,
+	}
+
+	fullPath, _ := AbsolutePath(ds.Root, filePath)
+	if !strings.HasPrefix(fullPath, ds.Root) {
+		return result
 	}
 
 	if fileInfo, err := os.Stat(fullPath); nil == err {

@@ -54,7 +54,13 @@ func (handler *ImageServerHandler) processFolder(c *gin.Context) {
 	}
 
 	folderNames := []string{c.Param("path")}
-	folderNames = append(folderNames, c.QueryArray("c")...)
+	for _, pa := range c.QueryArray("c") {
+		stat := handler.data.Stat(pa)
+		if !stat.Exists || stat.IsFile {
+			continue
+		}
+		folderNames = append(folderNames, pa)
+	}
 
 	contents := make([]datasource.FolderContent, 0)
 	for _, name := range folderNames {
