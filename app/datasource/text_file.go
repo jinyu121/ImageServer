@@ -14,7 +14,8 @@ import (
 )
 
 type TextFileDataSource struct {
-	Root   string
+	Root string
+
 	filter string
 	column int
 	data   []string
