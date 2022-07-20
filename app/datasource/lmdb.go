@@ -7,29 +7,30 @@ import (
 
 	"github.com/bmatsuo/lmdb-go/lmdb"
 	"github.com/schollz/progressbar/v3"
+	"haoyu.love/ImageServer/app/filter"
 )
 
 type LmdbDataSource struct {
-	Root string
-
+	root         string
+	filter       *filter.Filter
 	lmdbEnv      *lmdb.Env
 	lmdbDbi      lmdb.DBI
 	lmdbFileTree *Node
 }
 
-func NewLmdbDataSource(filePath string) *LmdbDataSource {
-	ds := &LmdbDataSource{Root: "/"}
-	ds.scan(filePath)
+func NewLmdbDataSource(filePath string, flt *filter.Filter) *LmdbDataSource {
+	ds := &LmdbDataSource{root: filePath, filter: flt}
+	ds.scan()
 	return ds
 }
 
-func (ds *LmdbDataSource) scan(filePath string) {
+func (ds *LmdbDataSource) scan() {
 	ds.lmdbFileTree = NewRoot()
 
 	ds.lmdbEnv, _ = lmdb.NewEnv()
 	_ = ds.lmdbEnv.SetMaxDBs(1)
 	_ = ds.lmdbEnv.SetMapSize(1 << 42)
-	err := ds.lmdbEnv.Open(filePath, 0, 644)
+	err := ds.lmdbEnv.Open(ds.root, 0, 644)
 
 	if nil != err {
 		panic(err)
@@ -42,7 +43,7 @@ func (ds *LmdbDataSource) scan(filePath string) {
 		panic(err)
 	}
 
-	log.Printf("Scan database %s", filePath)
+	log.Printf("Scan database %s", ds.root)
 
 	bar := progressbar.Default(-1, "Scanning")
 	callback := func(itemPath string) {

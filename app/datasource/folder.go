@@ -6,26 +6,29 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"haoyu.love/ImageServer/app/filter"
 )
 
 type FolderDataSource struct {
-	Root string
+	root   string
+	filter *filter.Filter
 }
 
-func NewFolderDataSource(root string) *FolderDataSource {
+func NewFolderDataSource(root string, flt *filter.Filter) *FolderDataSource {
 	rootAbsolute, _ := filepath.Abs(root)
-	ds := &FolderDataSource{Root: rootAbsolute}
+	ds := &FolderDataSource{root: rootAbsolute, filter: flt}
 	return ds
 }
 
 func (ds *FolderDataSource) GetFile(filePath string) ([]byte, error) {
-	currentAbs, _ := AbsolutePath(ds.Root, filePath)
+	currentAbs, _ := AbsolutePath(ds.root, filePath)
 	data, err := os.ReadFile(currentAbs)
 	return data, err
 }
 
 func (ds *FolderDataSource) GetFolder(current string) (content FolderContent, err error) {
-	currentAbs, currentRelative := AbsolutePath(ds.Root, current)
+	currentAbs, currentRelative := AbsolutePath(ds.root, current)
 
 	content = FolderContent{
 		Name:    currentRelative,
@@ -33,7 +36,7 @@ func (ds *FolderDataSource) GetFolder(current string) (content FolderContent, er
 		Files:   []string{},
 	}
 
-	// Ensure the Root is a folder
+	// Ensure the root is a folder
 	rootInfo, err := os.Stat(currentAbs)
 	if nil != err {
 		return
@@ -64,7 +67,7 @@ func (ds *FolderDataSource) GetFolder(current string) (content FolderContent, er
 
 		if item.IsDir() {
 			content.Folders = append(content.Folders, path.Join(currentRelative, item.Name()))
-		} else {
+		} else if (*ds.filter).Filter(item.Name()) {
 			content.Files = append(content.Files, path.Join(currentRelative, item.Name()))
 		}
 	}
@@ -82,11 +85,11 @@ func (ds *FolderDataSource) GetNeighbor(current string) (nav *Navigation) {
 		return
 	}
 
-	_, currentRelative := AbsolutePath(ds.Root, current)
+	_, currentRelative := AbsolutePath(ds.root, current)
 	nav.Current = currentRelative
 	currentName := path.Base(current)
 
-	baseAbs, baseRelative := AbsolutePath(ds.Root, path.Dir(currentRelative))
+	baseAbs, baseRelative := AbsolutePath(ds.root, path.Dir(currentRelative))
 	nav.Parent = baseRelative
 
 	folder, err := os.Open(baseAbs)
@@ -136,8 +139,8 @@ func (ds *FolderDataSource) Stat(filePath string) *FileStat {
 		IsFile: false,
 	}
 
-	fullPath, _ := AbsolutePath(ds.Root, filePath)
-	if !strings.HasPrefix(fullPath, ds.Root) {
+	fullPath, _ := AbsolutePath(ds.root, filePath)
+	if !strings.HasPrefix(fullPath, ds.root) {
 		return result
 	}
 

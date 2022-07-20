@@ -13,19 +13,15 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"haoyu.love/ImageServer/app/datasource"
+	"haoyu.love/ImageServer/app/filter"
 )
 
 var (
-	Root           = "./"
-	Port           = flag.Int("port", 9420, "Listen Port")
-	PageSize       = flag.Int("page", 1000, "Page size")
-	Column         = flag.Int("column", 0, "Column")
-	CustomExt      = flag.String("ext", "", "File extensions")
-	CustomJsonPath = flag.String("json", "", "JsonPath if you are using json file")
-)
-
-var (
-	FileExtension = make(map[string]struct{})
+	Root     = "./"
+	Port     = flag.Int("port", 9420, "Listen Port")
+	PageSize = flag.Int("page", 1000, "Page size")
+	Column   = flag.Int("column", 0, "Column")
+	Filter   = flag.String("filter", filter.PREDEFINE_DEFAULT, "Filter")
 )
 
 func InitFlag() {
@@ -46,31 +42,24 @@ func InitFlag() {
 		panic(fmt.Sprintf("Path %s doesn't exists", Root))
 	}
 
-	// Process Extension
-	if "" != *CustomExt {
-		if "*" != *CustomExt {
-			ext := strings.Split(strings.ToLower(*CustomExt), ",")
-			ArrayToSet(FileExtension, ext)
-		}
-	} else {
-		ArrayToSet(FileExtension, DefaultImageExt)
-		ArrayToSet(FileExtension, DefaultAudioExt)
-		ArrayToSet(FileExtension, DefaultVideoExt)
-	}
 }
 
 func InitServer(assets embed.FS) *gin.Engine {
 	// Select proper data source
 	var data datasource.DataSource
+	var flt filter.Filter
 
 	if fileInfo, _ := os.Stat(Root); fileInfo.IsDir() {
 		if ".lmdb" == filepath.Ext(Root) {
-			data = datasource.NewLmdbDataSource(Root)
+			flt = filter.NewNoFilter()
+			data = datasource.NewLmdbDataSource(Root, &flt)
 		} else {
-			data = datasource.NewFolderDataSource(Root)
+			flt = filter.NewFileExtFilter(*Filter)
+			data = datasource.NewFolderDataSource(Root, &flt)
 		}
 	} else {
-		data = datasource.NewTextFileDataSource(Root, *CustomJsonPath, *Column)
+		flt = filter.NewJsonFilter(*Filter)
+		data = datasource.NewTextFileDataSource(Root, &flt, *Column)
 	}
 
 	handler := NewImageServerHandler(&data)

@@ -10,19 +10,19 @@ import (
 	"strings"
 
 	"github.com/schollz/progressbar/v3"
-	"github.com/spyzhov/ajson"
+	"haoyu.love/ImageServer/app/filter"
 )
 
 type TextFileDataSource struct {
-	Root string
+	root string
 
-	filter string
+	filter *filter.Filter
 	column int
 	data   []string
 }
 
-func NewTextFileDataSource(root string, filter string, column int) *TextFileDataSource {
-	ds := &TextFileDataSource{Root: root, filter: filter, column: column}
+func NewTextFileDataSource(root string, flt *filter.Filter, column int) *TextFileDataSource {
+	ds := &TextFileDataSource{root: root, filter: flt, column: column}
 	ds.scan()
 	return ds
 }
@@ -46,15 +46,15 @@ func (ds *TextFileDataSource) GetNeighbor(_ string) (nav *Navigation) {
 }
 
 func (ds *TextFileDataSource) scan() {
-	log.Printf("Scan column %d of file %s", ds.column, ds.Root)
+	log.Printf("Scan column %d of file %s", ds.column, ds.root)
 	bar := progressbar.Default(-1, "Scanning")
 	callback := func(path string) {
 		_ = bar.Add(1)
 	}
 
-	ext := strings.ToLower(filepath.Ext(ds.Root))
+	ext := strings.ToLower(filepath.Ext(ds.root))
 
-	f, err := os.Open(ds.Root)
+	f, err := os.Open(ds.root)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -82,7 +82,7 @@ func (ds *TextFileDataSource) Stat(filePath string) *FileStat {
 	return result
 }
 
-func ReadXsv(f *os.File, ext string, column int, jsonP string, callback func(path string)) []string {
+func ReadXsv(f *os.File, ext string, column int, flt *filter.Filter, callback func(path string)) []string {
 	result := make([]string, 0)
 
 	csvReader := csv.NewReader(f)
@@ -98,7 +98,7 @@ func ReadXsv(f *os.File, ext string, column int, jsonP string, callback func(pat
 		if len(rec) < column {
 			continue
 		}
-		result = append(result, ExtractByJsonPath([]byte(rec[column]), jsonP)...)
+		result = append(result, (*flt).Extract(rec[column])...)
 
 		if nil != callback {
 			callback("")
@@ -108,42 +108,16 @@ func ReadXsv(f *os.File, ext string, column int, jsonP string, callback func(pat
 	return result
 }
 
-func ReadText(f *os.File, jsonP string, callback func(path string)) []string {
+func ReadText(f *os.File, flt *filter.Filter, callback func(path string)) []string {
 	result := make([]string, 0)
 
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
-		result = append(result, ExtractByJsonPath(scanner.Bytes(), jsonP)...)
+		result = append(result, (*flt).Extract(scanner.Text())...)
 		if nil != callback {
 			callback("")
 		}
 	}
 
-	return result
-}
-
-func ExtractByJsonPath(data []byte, pa string) []string {
-	var result []string
-	if "" == pa {
-		result = append(result, string(data))
-		return result
-	}
-	if "" != pa {
-		root, err := ajson.Unmarshal(data)
-		if nil != err {
-			return result
-		}
-		nodes, err := root.JSONPath(pa)
-		if nil != err {
-			return result
-		}
-		for _, node := range nodes {
-			s, err := node.GetString()
-			if nil != err {
-				continue
-			}
-			result = append(result, s)
-		}
-	}
 	return result
 }
