@@ -71,8 +71,9 @@ func Paginate(
 			ref.Files = ref.Files[tmpStart:tmpEnd]
 		}
 	} else {
-		tmpStart := offsetStart
-		tmpEnd := offsetEnd
+		tmpStart := offsetStart - numFolders
+		tmpEnd := offsetEnd - numFolders
+		ref.Folders = make([]string, 0)
 		ref.Files = ref.Files[tmpStart:tmpEnd]
 	}
 
@@ -118,10 +119,6 @@ func DeduplicateFolderContent(contents *[]datasource.FolderContent) datasource.F
 // AlignContent aligns the content of folders and files inplace according to the given content
 func AlignContent(contents *[]datasource.FolderContent, ref *datasource.FolderContent) {
 	contents_ := *contents
-	n := len(contents_)
-	if n <= 1 {
-		return
-	}
 
 	// Align
 	for i := range contents_ {
