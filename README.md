@@ -40,7 +40,7 @@ One line per JSON object (ImageServer do not support human-friendly formatted JS
 get the image URL by JSONPath syntax
 
 ```shell
-image_server --json "@.images[*]" path/to/your/json/file.json  
+image_server --filter "$.images[*]" path/to/your/json/file.json  
 ```
 
 ### LMDB file
