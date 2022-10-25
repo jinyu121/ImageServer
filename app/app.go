@@ -79,7 +79,7 @@ func InitServer(assets embed.FS) *gin.Engine {
 
 	appRouter.GET("/*path", func(c *gin.Context) {
 		path := c.Param("path")
-		// Special handling for the
+		// Special handling for the static files
 		if strings.HasPrefix(path, "/_/") {
 			frameworkRouter.HandleContext(c)
 		} else {

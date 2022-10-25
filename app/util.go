@@ -116,7 +116,7 @@ func DeduplicateFolderContent(contents *[]datasource.FolderContent) datasource.F
 	return datasource.FolderContent{Name: "", Folders: folders, Files: files}
 }
 
-// AlignContent aligns the content of folders and files inplace according to the given content
+// AlignContent aligns the content of folders and files in-place according to the given content
 func AlignContent(contents *[]datasource.FolderContent, ref *datasource.FolderContent) {
 	contents_ := *contents
 
@@ -148,23 +148,17 @@ func align(items, ref []string) []string {
 	return result
 }
 
-func ArrayToSet(data map[string]struct{}, arr []string) {
-	for _, v := range arr {
-		data[v] = struct{}{}
-	}
-}
-
 func GetIPAddress() []net.IP {
 	result := make([]net.IP, 0)
 
-	ifaces, err := net.Interfaces()
+	iFaces, err := net.Interfaces()
 	if nil != err {
 		return result
 	}
 
-	for _, face := range ifaces {
-		if addrs, err := face.Addrs(); nil == err {
-			for _, addr := range addrs {
+	for _, face := range iFaces {
+		if addresses, err := face.Addrs(); nil == err {
+			for _, addr := range addresses {
 				var ip net.IP
 				switch v := addr.(type) {
 				case *net.IPNet:
