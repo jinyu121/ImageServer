@@ -26,7 +26,7 @@ var (
 
 func InitFlag() {
 	flag.Parse()
-	if 0 == flag.NArg() {
+	if flag.NArg() == 0 {
 		Root = "./"
 	} else {
 		Root = flag.Arg(0)
