@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,6 +13,12 @@ import (
 var UpdateAPI = "https://api.github.com/repos/jinyu121/ImageServer/releases/latest"
 
 func CheckUpdate(current string) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Println("Failed to check update")
+		}
+	}()
+
 	if gin.ReleaseMode != gin.Mode() {
 		return
 	}
