@@ -30,7 +30,7 @@ func (ds *LmdbDataSource) scan() {
 	ds.lmdbEnv, _ = lmdb.NewEnv()
 	_ = ds.lmdbEnv.SetMaxDBs(1)
 	_ = ds.lmdbEnv.SetMapSize(1 << 42)
-	err := ds.lmdbEnv.Open(ds.root, 0, 644)
+	err := ds.lmdbEnv.Open(ds.root, 0, 0644)
 
 	if nil != err {
 		panic(err)

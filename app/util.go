@@ -26,7 +26,7 @@ func Paginate(
 	}
 	// Ensure all element are not empty
 	itemsCount := numFolders + numFiles
-	if 0 == itemsCount {
+	if itemsCount == 0 {
 		return page
 	}
 

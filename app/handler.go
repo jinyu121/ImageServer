@@ -75,7 +75,7 @@ func (handler *ImageServerHandler) processFolder(c *gin.Context) {
 	pagination := Paginate(&aligned, &contents, *PageSize, pageNum, GetCurrentUrl(c))
 
 	navigation := datasource.Navigation{}
-	if 1 == len(contents) {
+	if len(contents) == 1 {
 		content := contents[0]
 		navigation = *handler.data.GetNeighbor(contents[0].Name)
 

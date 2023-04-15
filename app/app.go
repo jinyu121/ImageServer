@@ -21,7 +21,7 @@ var (
 	Port     = flag.Int("port", 9420, "Listen Port")
 	PageSize = flag.Int("page", 1000, "Page size")
 	Column   = flag.Int("column", 0, "Column")
-	Filter   = flag.String("filter", filter.PREDEFINE_DEFAULT, "Filter")
+	Filter   = flag.String("filter", filter.PredefineDefault, "Filter")
 )
 
 func InitFlag() {
@@ -50,7 +50,7 @@ func InitServer(assets embed.FS) *gin.Engine {
 	var flt filter.Filter
 
 	if fileInfo, _ := os.Stat(Root); fileInfo.IsDir() {
-		if ".lmdb" == filepath.Ext(Root) {
+		if filepath.Ext(Root) == ".lmdb" {
 			flt = filter.NewNoFilter()
 			data = datasource.NewLmdbDataSource(Root, &flt)
 		} else {

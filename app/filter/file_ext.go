@@ -18,11 +18,11 @@ type FileExtFilter struct {
 func NewFileExtFilter(ext string) *FileExtFilter {
 	filter := &FileExtFilter{ext: make(map[string]interface{})}
 	tmp := make([]string, 0)
-	if PREDEFINE_DEFAULT == ext || PREDEFINE_IMAGE_EXT == ext {
+	if PredefineDefault == ext || PredefineImageExt == ext {
 		tmp = DefaultImageExt
-	} else if PREDEFINE_VIDEO_EXT == ext {
+	} else if PredefineVideoExt == ext {
 		tmp = DefaultVideoExt
-	} else if PREDEFINE_AUDIO_EXT == ext {
+	} else if PredefineAudioExt == ext {
 		tmp = DefaultAudioExt
 	} else {
 		tmp = strings.Split(strings.ToLower(ext), ",")

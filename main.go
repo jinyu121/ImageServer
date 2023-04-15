@@ -24,14 +24,16 @@ var (
 )
 
 func main() {
+	log.Println("ImageServer", Version, "Build", Build)
+
 	if "Unknown" != Version {
 		gin.SetMode(gin.ReleaseMode)
+
+		// Only check updates in release mode
+		go app.CheckUpdate(Version)
 	}
 
-	log.Println("ImageServer", Version, "Build", Build)
 	app.InitFlag()
-
-	go app.CheckUpdate(Version)
 
 	appRouter := app.InitServer(assets)
 

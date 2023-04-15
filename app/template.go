@@ -15,7 +15,7 @@ var TemplateFunction = template.FuncMap{
 		return path.Base(p)
 	},
 	"lastOne": func(arr []interface{}) interface{} {
-		if 0 == len(arr) {
+		if len(arr) == 0 {
 			return nil
 		}
 		return arr[len(arr)-1]
@@ -23,7 +23,7 @@ var TemplateFunction = template.FuncMap{
 	"breadCrumb": func(root string) []string {
 		crumb := make([]string, 0)
 		root = strings.Trim(root, "/")
-		if "" != root {
+		if root != "" {
 			sps := strings.Split(root, "/")
 			for i := range sps {
 				crumb = append(crumb, "/"+strings.Join(sps[:i+1], "/"))

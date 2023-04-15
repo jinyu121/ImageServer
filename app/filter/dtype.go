@@ -1,10 +1,10 @@
 package filter
 
 const (
-	PREDEFINE_DEFAULT   = "@DEFAULT"
-	PREDEFINE_IMAGE_EXT = "@IMAGE"
-	PREDEFINE_VIDEO_EXT = "@VIDEO"
-	PREDEFINE_AUDIO_EXT = "@AUDIO"
+	PredefineDefault  = "@DEFAULT"
+	PredefineImageExt = "@IMAGE"
+	PredefineVideoExt = "@VIDEO"
+	PredefineAudioExt = "@AUDIO"
 )
 
 type Filter interface {

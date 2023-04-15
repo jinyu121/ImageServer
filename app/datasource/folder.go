@@ -81,7 +81,7 @@ func (ds *FolderDataSource) GetFolder(current string) (content FolderContent, er
 
 func (ds *FolderDataSource) GetNeighbor(current string) (nav *Navigation) {
 	nav = &Navigation{}
-	if "/" == current || "" == current {
+	if current == "/" || current == "" {
 		return
 	}
 
